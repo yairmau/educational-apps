@@ -263,6 +263,9 @@ input[type="text"] { font: inherit; padding: 11px 14px; border-radius: 12px; bor
 .seg { display: flex; gap: 6px; flex-wrap: wrap; }
 .seg button { border: 2px solid var(--line); background: var(--surface-2); border-radius: 10px; padding: 8px 12px; font-weight: 800; font-size: 14px; }
 .seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.seg.kinds button { display: grid; gap: 2px; justify-items: center; }
+.seg.kinds small { font-size: 12px; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+.seg.kinds button[aria-pressed="true"] small { color: inherit; opacity: .8; }
 .boss-list { display: grid; gap: 8px; }
 .boss-opt { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 12px; align-items: center; text-align: start; border: 2px solid var(--line); background: var(--surface-2); border-radius: 14px; padding: 8px 12px; }
 .boss-opt:disabled { opacity: .45; cursor: not-allowed; }
@@ -402,7 +405,7 @@ DB.upTo12 ??= true;
 const P = () => DB.players[DB.current] || null;
 function newPlayer(name) {
   return { name, color: AV_COLORS[DB.order.length % AV_COLORS.length], facts: {}, xp: 0, correct: 0, answered: 0,
-    maxStreak: 0, best: { sprint: 0, match: null }, bosses: [], badges: [], lastTables: [6,7,8,9], lastStyle: 'product' };
+    maxStreak: 0, best: { sprint: 0, match: null }, bosses: [], badges: [], lastTables: [6,7,8,9], lastKinds: ['mul'] };
 }
 
 /* ---------- range: tables up to 10 or up to 12 ---------- */
@@ -432,7 +435,7 @@ const I18N = {
     streak: n => `Streak ${n}`, secs: n => `${n}s`, pts: n => `${n} pts`, retry: 'One more try at a fact you missed', outOfTime: 'Out of time. ',
     combo: 'Combo!', xpPop: '+10 XP', trickOf: t => `${t}s trick:`, comesBack: 'This one will come back in a few questions.', gotIt: 'Got it, next',
     bossHealth: 'Boss health', heartsLeft: n => `${n} hearts left`, pairs: n => `${n} / 8 pairs`, moves: n => `${n} moves`, card: n => `Card ${n}`,
-    training: 'Training', qType: 'Question type', mixBoth: 'Mix both', howMany: 'How many questions', whichTables: 'Which tables?',
+    training: 'Training', kinds: 'Exercise types (pick one or more)', kMul: 'Multiply', kMiss: 'Missing number', kDiv: 'Divide', kDivMiss: 'Divide, missing number', onlyMul: 'Multiplication only', mixAll: 'Mix everything', because: e => `Because ${e}`, howMany: 'How many questions', whichTables: 'Which tables?',
     p25: '2 to 5', p69: '6 to 9', p1112: '11 and 12', all: 'All', clear: 'Clear', cancel: 'Cancel', start: 'Start', close: 'Close',
     bossIntro: 'Each right answer hits the boss. Three right in a row hits twice as hard. A wrong answer or running out of time costs a heart. Beat a boss to unlock the next one.',
     bossLine: (title, tables, s) => `${title} · tables ${tables} · ${s}s per question`, fromTo: (a, b) => `${a} to ${b}`,
@@ -496,7 +499,7 @@ const I18N = {
     streak: n => `רצף ${n}`, secs: n => `${n} שנ׳`, pts: n => `${n} נק׳`, retry: 'עוד ניסיון בתרגיל שהתפספס', outOfTime: 'נגמר הזמן. ',
     combo: 'קומבו!', xpPop: '+10', trickOf: t => `הטריק של ${t}:`, comesBack: 'התרגיל הזה יחזור בעוד כמה שאלות.', gotIt: 'הבנתי, הלאה',
     bossHealth: 'כוח המפלצת', heartsLeft: n => `נשארו ${n} לבבות`, pairs: n => `${m(`${n} / 8`)} זוגות`, moves: n => `${n} מהלכים`, card: n => `קלף ${n}`,
-    training: 'אימון', qType: 'סוג שאלה', mixBoth: 'שילוב', howMany: 'כמה שאלות', whichTables: 'אילו לוחות?',
+    training: 'אימון', kinds: 'סוגי תרגילים (אפשר לבחור כמה)', kMul: 'כפל', kMiss: 'מספר חסר', kDiv: 'חילוק', kDivMiss: 'חילוק, מספר חסר', onlyMul: 'רק כפל', mixAll: 'הכול מעורבב', because: e => `כי ${e}`, howMany: 'כמה שאלות', whichTables: 'אילו לוחות?',
     p25: 'מ־2 עד 5', p69: 'מ־6 עד 9', p1112: '11 ו־12', all: 'הכל', clear: 'ניקוי', cancel: 'ביטול', start: 'התחלה', close: 'סגירה',
     bossIntro: 'כל תשובה נכונה פוגעת במפלצת. שלוש נכונות ברצף פוגעות כפול. תשובה שגויה או סוף הזמן עולים בלב. ניצחון על מפלצת פותח את הבאה.',
     bossLine: (title, tables, s) => `${title} · לוחות ${tables} · ${s} שניות לשאלה`, fromTo: (a, b) => `מ־${a} עד ${b}`,
@@ -721,6 +724,10 @@ const ICON = {
   sprint: '<svg viewBox="0 0 32 32" fill="currentColor"><path d="M18 3 6 18h8l-2 11 13-16h-8z"/></svg>',
   boss: '<svg viewBox="0 0 32 32" fill="currentColor"><path d="M16 4c7 0 12 5 12 12v12l-3-3-3 3-3-3-3 3-3-3-3 3-3-3-3 3V16C4 9 9 4 16 4z"/><circle cx="11.5" cy="15" r="2.6" fill="var(--surface)"/><circle cx="20.5" cy="15" r="2.6" fill="var(--surface)"/></svg>'
 };
+const KINDS = ['mul', 'miss', 'div', 'divmiss'];
+const KIND_LABEL = { mul: 'kMul', miss: 'kMiss', div: 'kDiv', divmiss: 'kDivMiss' };
+const KIND_EXAMPLE = { mul: () => '7 × 8 = ?', miss: () => '7 × ? = 56', div: () => `56 ${DIV()} 8 = ?`, divmiss: () => `56 ${DIV()} ? = 8` };
+const KINDS_FROM_STYLE = { product: ['mul'], missing: ['miss'], mixed: ['mul', 'miss'] };   // older saves
 const MODES = [
   { id: 'study', bg: 'var(--m3)' }, { id: 'train', bg: 'var(--m2)' }, { id: 'rescue', bg: 'var(--m1)' },
   { id: 'match', bg: 'var(--m4)' }, { id: 'sprint', bg: 'var(--sun)' }, { id: 'boss', bg: 'var(--coral)' }
@@ -855,14 +862,15 @@ function openSheet(html) { $('#sheet').innerHTML = html; $('#scrim').hidden = fa
 function closeSheet() { $('#scrim').hidden = true; S = null; }
 function openSetup(mode) {
   const p = P();
-  S = { mode, tables: [...(p.lastTables || [6,7,8,9])], style: p.lastStyle || 'product', len: 20 };
+  S = { mode, tables: [...(p.lastTables || [6,7,8,9])], kinds: [...(p.lastKinds || KINDS_FROM_STYLE[p.lastStyle] || ['mul'])], len: 20 };
   renderSetup();
 }
 function renderSetup() {
   S.tables = fitTables(S.tables);
   const title = { train: t('training'), sprint: TX('modes').sprint[1], match: TX('modes').match[1] }[S.mode];
-  const styles = S.mode === 'match' ? '' : `<div class="grp"><span class="lab">${t('qType')}</span><div class="seg">
-      ${[['product', m('7 × 8 = ?')], ['missing', m('7 × ? = 56')], ['mixed', t('mixBoth')]].map(([v, l]) => `<button data-action="set-style" data-v="${v}" aria-pressed="${S.style === v}">${l}</button>`).join('')}</div></div>`;
+  const styles = S.mode === 'match' ? '' : `<div class="grp"><span class="lab">${t('kinds')}</span><div class="seg kinds">
+      ${KINDS.map(k => `<button data-action="set-kind" data-v="${k}" aria-pressed="${S.kinds.includes(k)}"><span>${t(KIND_LABEL[k])}</span><small>${m(KIND_EXAMPLE[k]())}</small></button>`).join('')}</div>
+      <div class="chips"><button class="tchip sm" data-action="set-kinds" data-v="mul">${t('onlyMul')}</button><button class="tchip sm" data-action="set-kinds" data-v="all">${t('mixAll')}</button></div></div>`;
   const len = S.mode === 'train' ? `<div class="grp"><span class="lab">${t('howMany')}</span><div class="seg">
       ${[10, 20, 30].map(n => `<button data-action="set-len" data-v="${n}" aria-pressed="${S.len === n}">${n}</button>`).join('')}</div></div>` : '';
   const presets = [['2-5', t('p25')], ['6-9', t('p69')], ...(MAXT() === 12 ? [['11-12', t('p1112')]] : []), ['all', t('all')], ['none', t('clear')]];
@@ -872,7 +880,7 @@ function renderSetup() {
       <div class="chips">${presets.map(([v, l]) => `<button class="tchip sm" data-action="set-preset" data-v="${v}">${l}</button>`).join('')}</div>
     </div>
     ${styles}${len}
-    <div class="row" style="justify-content:flex-end"><button class="btn alt" data-action="close-sheet">${t('cancel')}</button><button class="btn accent big" data-action="go" ${S.tables.length ? '' : 'disabled'}>${t('start')}</button></div>`);
+    <div class="row" style="justify-content:flex-end"><button class="btn alt" data-action="close-sheet">${t('cancel')}</button><button class="btn accent big" data-action="go" ${S.tables.length && (S.mode === 'match' || S.kinds.length) ? '' : 'disabled'}>${t('start')}</button></div>`);
 }
 function openBossSelect() {
   const p = P(), list = bossList();
@@ -906,7 +914,7 @@ function startGame(mode, opts) {
   let tables = fitTables(opts.tables || []), pool = opts.pool ? opts.pool.filter(inRange) : null;
   if (opts.pool && !pool.length) pool = weakPool(p);
   if (!pool && !tables.length) tables = [2, 3, 4, 5];
-  G = { mode, tables, pool, style: opts.style || 'product', len: opts.len || 20,
+  G = { mode, tables, pool, kinds: opts.kinds && opts.kinds.length ? opts.kinds : ['mul'], len: opts.len || 20,
     boss: opts.boss || null, n: 0, right: 0, wrong: 0, streak: 0, bestStreak: 0, score: 0, xp0: p.xp,
     missed: [], review: [], input: '', lock: false, lastKey: null, hearts: 3, hp: opts.boss ? opts.boss.hp : 0, opts };
   if (mode === 'sprint') G.end = performance.now() + 60000;
@@ -968,19 +976,31 @@ function nextQ() {
   else f = pickFact();
   let a = f.a, b = f.b;
   if (Math.random() < .5) [a, b] = [b, a];
-  const style = G.style === 'mixed' ? (Math.random() < .5 ? 'product' : 'missing') : G.style;
-  G.q = style === 'missing' ? { a, b, type: 'missing', ans: b } : { a, b, type: 'product', ans: a * b };
+  G.q = makeQ(a, b, G.kinds[rand(G.kinds.length)]);
   G.lastKey = fk(a, b);
   G.input = ''; G.lock = false; G.qStart = performance.now();
   $('#qsub').textContent = (G.mode === 'train' || G.mode === 'rescue') && G.n > G.len ? t('retry') : '';
   renderQ(); renderHud();
 }
+// every question is one fact a × b = c written as a chain: [x, op, y, '=', z], with null marking the blank
+function makeQ(a, b, kind) {
+  const c = a * b, flip = Math.random() < .5;
+  const chain = {
+    mul: [a, '×', b, '=', null],
+    miss: flip ? [a, '×', null, '=', c] : [null, '×', b, '=', c],
+    div: [c, 'div', a, '=', null],
+    divmiss: flip ? [c, 'div', null, '=', b] : [null, 'div', a, '=', b]
+  }[kind];
+  const ans = { mul: c, miss: flip ? b : a, div: b, divmiss: flip ? a : c }[kind];
+  return { a, b, kind, chain, ans };
+}
+const DIV = () => isHe() ? ':' : '÷';
+const opSym = x => x === 'div' ? DIV() : x;
+// the question written out with its answer filled in; the answer can be wrapped (e.g. in <b>)
+const solved = (q, wrap = x => x) => m(q.chain.map(x => x === null ? wrap(q.ans) : opSym(x)).join(' '));
 function renderQ(state = '') {
-  const q = G.q;
   const slot = `<span class="slot ${state}" aria-live="polite">${G.input || '&nbsp;'}</span>`;
-  $('#q').innerHTML = q.type === 'product'
-    ? `<span>${q.a}</span><span class="op">×</span><span>${q.b}</span><span class="op">=</span>${slot}`
-    : `<span>${q.a}</span><span class="op">×</span>${slot}<span class="op">=</span><span>${q.a * q.b}</span>`;
+  $('#q').innerHTML = G.q.chain.map(x => x === null ? slot : typeof x === 'number' ? `<span>${x}</span>` : `<span class="op">${opSym(x)}</span>`).join('');
 }
 function press(k) {
   if (!G || G.lock === 'wait') return;
@@ -1038,7 +1058,7 @@ function wrongAnswer(timeout) {
   }
   // speed modes: flash the answer, keep going
   G.input = String(q.ans); renderQ('no');
-  $('#qsub').innerHTML = `${timeout ? t('outOfTime') : ''}${m(`${q.a} × ${q.b} = <b>${q.a * q.b}</b>`)}`;
+  $('#qsub').innerHTML = `${timeout ? t('outOfTime') : ''}${solved(q, x => `<b>${x}</b>`)}`;
   if (G.mode === 'boss') { G.hearts--; renderBoss(''); }
   G.lock = 'wait';
   setTimeout(nextQ, 1500);
@@ -1046,7 +1066,8 @@ function wrongAnswer(timeout) {
 function showExplain(q) {
   const br = breakdown(q.a, q.b);
   const tb = HARD.indexOf(q.a) <= HARD.indexOf(q.b) ? q.a : q.b;
-  $('#explain').innerHTML = `<div class="big">${m(`${q.a} × ${q.b} = <em>${q.a * q.b}</em>`)}</div>
+  $('#explain').innerHTML = `<div class="big">${solved(q, x => `<em>${x}</em>`)}</div>
+    ${q.kind !== 'mul' ? `<div class="tip">${t('because', eq(q.a, q.b))}</div>` : ''}
     <div class="dots-wrap"><div class="dots">${dotsHTML(q.a, q.b)}</div></div>
     ${br ? `<div class="tip">${br}</div>` : ''}
     <div class="tip"><b>${t('trickOf', tb)}</b> ${esc(tip(tb))}</div>
@@ -1208,39 +1229,40 @@ document.addEventListener('click', e => {
     case 'study-t': ST.t = +el.dataset.t; clearTimeout(ST.counting); ST.counting = null; renderStudy(); break;
     case 'study-n': ST.n = +el.dataset.n; renderStudy(); break;
     case 'count-along': countAlong(); break;
-    case 'quiz-table': startGame('train', { tables: [ST.t], style: 'product', len: 12 }); break;
-    case 'train-one': startGame('train', { tables: [+el.dataset.t], style: 'product', len: 15 }); break;
+    case 'quiz-table': startGame('train', { tables: [ST.t], len: 12 }); break;
+    case 'train-one': startGame('train', { tables: [+el.dataset.t], len: 15 }); break;
     case 'mode': {
       if (needPlayer()) break;
       const md = el.dataset.mode;
       if (md === 'study') openStudy(weakestTable(p));
-      else if (md === 'rescue') startGame('rescue', { pool: weakPool(p), style: 'product', len: 15 });
+      else if (md === 'rescue') startGame('rescue', { pool: weakPool(p), len: 15 });
       else if (md === 'boss') openBossSelect();
       else openSetup(md);
       break;
     }
     case 'set-t': { const x = +el.dataset.t; S.tables = S.tables.includes(x) ? S.tables.filter(y => y !== x) : [...S.tables, x].sort((u, v) => u - v); renderSetup(); break; }
     case 'set-preset': S.tables = { '2-5': [2,3,4,5], '6-9': [6,7,8,9], '11-12': [11,12], all: TABLES().slice(1), none: [] }[el.dataset.v]; renderSetup(); break;
-    case 'set-style': S.style = el.dataset.v; renderSetup(); break;
+    case 'set-kind': { const k = el.dataset.v; S.kinds = S.kinds.includes(k) ? S.kinds.filter(x => x !== k) : [...S.kinds, k]; renderSetup(); break; }
+    case 'set-kinds': S.kinds = el.dataset.v === 'all' ? [...KINDS] : ['mul']; renderSetup(); break;
     case 'set-len': S.len = +el.dataset.v; renderSetup(); break;
     case 'close-sheet': closeSheet(); break;
     case 'go': {
       if (!S.tables.length) break;
-      p.lastTables = S.tables; p.lastStyle = S.style; save();
+      p.lastTables = S.tables; if (S.mode !== 'match') p.lastKinds = S.kinds; save();
       const s = S; closeSheet();
-      startMode(s.mode, { tables: s.tables, style: s.style, len: s.len });
+      startMode(s.mode, { tables: s.tables, kinds: s.kinds, len: s.len });
       break;
     }
-    case 'boss': { const b = BOSSES[+el.dataset.i]; closeSheet(); startGame('boss', { tables: b.tables, boss: b, style: 'product' }); break; }
+    case 'boss': { const b = BOSSES[+el.dataset.i]; closeSheet(); startGame('boss', { tables: b.tables, boss: b }); break; }
     case 'flip': flip(+el.dataset.i); break;
     case 'again': {
       const r = lastAgain; if (!r) return goHome();
       if (r.mode === 'boss') { const b = BOSSES[r.i]; startGame('boss', { tables: b.tables, boss: b }); }
-      else if (r.mode === 'rescue') startGame('rescue', { pool: weakPool(p), style: 'product', len: 15 });
+      else if (r.mode === 'rescue') startGame('rescue', { pool: weakPool(p), len: 15 });
       else startMode(r.mode, r.opts);
       break;
     }
-    case 'drill-missed': startGame('train', { pool: lastMissed.map(x => ({ a: x.a, b: x.b })), style: 'product', len: Math.max(8, lastMissed.length * 2) }); break;
+    case 'drill-missed': startGame('train', { pool: lastMissed.map(x => ({ a: x.a, b: x.b })), len: Math.max(8, lastMissed.length * 2) }); break;
   }
 });
 document.addEventListener('submit', e => {
