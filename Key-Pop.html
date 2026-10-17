@@ -1,0 +1,887 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Key Pop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: a play desk — header, player chips, mode tabs, one stage card, then the keyboard + hands dock that every mode shares */
+:root{
+  --sky:#EAF1FB; --paper:#FFFFFF; --ink:#1E2650; --ink-soft:#5A6390; --line:#D3DCEF;
+  --accent:#F2456F; --sun:#FFC23D; --ok:#139C6E; --bad:#E5484D;
+  --f1:#FF7AA2; --f2:#FFB547; --f3:#3FCF9C; --f4:#5EA2FF; --f5:#B49BFF;
+  --on-candy:#1E2650;
+  --display:"Fredoka","Rubik","Arial Rounded MT Bold",system-ui,sans-serif;
+  --body:"Rubik",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"Courier New","Menlo","monospace";
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --sky:#121833; --paper:#1C2446; --ink:#EEF1FF; --ink-soft:#A3ACD6; --line:#2F3966;
+  --accent:#FF6B91; --sun:#FFCB57; --ok:#4FDCA6; --bad:#FF7A7F; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --sky:#121833; --paper:#1C2446; --ink:#EEF1FF; --ink-soft:#A3ACD6; --line:#2F3966;
+  --accent:#FF6B91; --sun:#FFCB57; --ok:#4FDCA6; --bad:#FF7A7F; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{background:var(--sky);color:var(--ink);font:16px/1.5 var(--body)}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--f4);outline-offset:2px}
+kbd{font-family:var(--display)}
+.f1{--fc:var(--f1)} .f2{--fc:var(--f2)} .f3{--fc:var(--f3)} .f4{--fc:var(--f4)} .f5{--fc:var(--f5)}
+
+.app{max-width:1000px;margin:0 auto;padding-inline:16px;padding-block:18px 28px;display:flex;flex-direction:column;gap:14px}
+
+/* header */
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{display:flex;align-items:flex-end;gap:4px;font-family:var(--display);direction:ltr}
+.logo .cap{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:var(--paper);border:2px solid var(--ink);box-shadow:0 3px 0 var(--ink);font-weight:600;font-size:20px}
+.logo .cap:nth-child(1){rotate:-6deg;background:var(--f1);color:var(--on-candy)}
+.logo .cap:nth-child(2){translate:0 -3px;background:var(--sun);color:var(--on-candy)}
+.logo .cap:nth-child(3){rotate:5deg;background:var(--f3);color:var(--on-candy)}
+.logo .pop{font-weight:700;font-size:32px;line-height:1;margin-inline-start:6px;color:var(--accent)}
+.tagline{font-size:14px;color:var(--ink-soft);margin:0}
+.controls{display:flex;gap:8px;align-items:center}
+.seg{display:flex;background:var(--paper);border:2px solid var(--line);border-radius:999px;padding:3px}
+.seg button{border:0;background:none;border-radius:999px;padding:6px 14px;font-family:var(--display);font-weight:500;font-size:16px}
+.seg button.on{background:var(--ink);color:var(--paper)}
+.icon-btn{width:42px;height:42px;border-radius:50%;border:2px solid var(--line);background:var(--paper);display:grid;place-items:center}
+.icon-btn svg{width:22px;height:22px}
+
+/* players */
+.players{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pl{border:2px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 14px;font-weight:500;display:flex;align-items:center;gap:8px}
+.pl .av{width:14px;height:14px;border-radius:50%;background:var(--fc)}
+.pl.on{border-color:var(--ink);box-shadow:0 2px 0 var(--ink)}
+.pl.add{border-style:dashed;color:var(--ink-soft)}
+.pl input{border:0;background:none;font:inherit;color:inherit;width:9em;outline:none}
+.players .who{font-size:13px;color:var(--ink-soft);margin-inline-end:4px}
+
+/* modes */
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.mode{display:flex;align-items:center;gap:12px;text-align:start;background:var(--paper);border:2px solid var(--line);border-radius:18px;padding:10px 14px;transition:transform .15s}
+.mode:hover{transform:translateY(-2px)}
+.mode.on{border-color:var(--ink);box-shadow:0 4px 0 var(--ink)}
+.mode .mi{flex:none;width:44px;height:44px;display:grid;place-items:center;border-radius:12px;background:var(--sky)}
+.mode .mi svg{width:30px;height:30px}
+.mode b{display:block;font-family:var(--display);font-weight:600;font-size:19px;line-height:1.2}
+.mode small{display:block;color:var(--ink-soft);font-size:13px;line-height:1.3}
+@media (max-width:620px){.mode small{display:none}.mode{padding:8px 10px;gap:8px}.mode .mi{width:34px;height:34px}.mode .mi svg{width:24px;height:24px}.mode b{font-size:16px}}
+
+/* stage */
+.stage{background:var(--paper);border:2px solid var(--line);border-radius:22px;padding:20px;min-height:290px;position:relative}
+.stage h2{font-family:var(--display);font-weight:600;font-size:26px;margin:0;text-wrap:balance}
+.stage-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 16px;margin-bottom:12px}
+.stage-head p{margin:0;color:var(--ink-soft);max-width:60ch}
+.btn{border:2px solid var(--ink);background:var(--paper);border-radius:14px;padding:9px 18px;font-family:var(--display);font-weight:600;font-size:18px;box-shadow:0 3px 0 var(--ink)}
+.btn:active{translate:0 2px;box-shadow:0 1px 0 var(--ink)}
+.btn.primary{background:var(--accent);color:#fff}
+.ghost{border:0;background:none;color:var(--ink-soft);font-weight:500;padding:4px 0}
+.ghost:hover{color:var(--ink)}
+
+/* lesson map */
+.lgroup{margin-top:14px}
+.lgroup h3{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 8px;font-weight:700}
+.ltiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px}
+.tile{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px 10px;border-radius:16px;border:2px solid var(--line);background:var(--sky);transition:transform .15s,border-color .15s}
+.tile:hover{transform:translateY(-3px);border-color:var(--ink)}
+.tile.up{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 22%,transparent)}
+.tile .num{position:absolute;top:6px;inset-inline-start:10px;font-size:12px;color:var(--ink-soft);font-weight:700;font-variant-numeric:tabular-nums}
+.tile .caps{display:flex;gap:5px;min-height:38px;align-items:center;flex-wrap:wrap;justify-content:center}
+.tile kbd{display:grid;place-items:center;min-width:34px;height:34px;padding:0 6px;border-radius:9px;background:var(--paper);border:2px solid var(--ink);box-shadow:0 2px 0 var(--ink);font-size:20px;font-weight:600}
+.tile .alltxt{font-family:var(--display);font-weight:600;font-size:17px}
+.stars{display:flex;gap:2px}
+.stars svg{width:18px;height:18px;fill:var(--line)}
+.stars svg.got{fill:var(--sun)}
+
+/* lesson play */
+.play-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.play-bar .ptitle{font-family:var(--display);font-weight:600;font-size:20px}
+.meter{flex:1;min-width:120px;height:12px;border-radius:999px;background:var(--sky);overflow:hidden;border:2px solid var(--line)}
+.meter .fill{height:100%;width:0;background:linear-gradient(90deg,var(--f3),var(--f4));border-radius:999px;transition:width .2s}
+.typetext{font:500 clamp(28px,5.4vw,46px)/1.65 var(--display);letter-spacing:.03em;padding:14px 18px;background:var(--sky);border-radius:16px;color:var(--ink-soft);word-break:normal;overflow-wrap:normal;font-variant-numeric:tabular-nums}
+.ch{border-radius:7px;transition:color .1s;display:inline-block;min-width:0.5em}
+.ch.ok{color:var(--ok)}
+.ch.ok.bad{color:var(--bad)}
+.ch.sp{background:color-mix(in srgb,var(--sun) 20%,transparent);border-radius:3px}
+.ch.cur{color:var(--ink);box-shadow:inset 0 -4px 0 var(--sun)}
+.ch.sp.cur{background:color-mix(in srgb,var(--sun) 40%,transparent);box-shadow:inset 0 -4px 0 var(--sun)}
+.ch.cur.bad{box-shadow:inset 0 -5px 0 var(--bad)}
+.shake{animation:shake .28s}
+@keyframes shake{25%{translate:-4px 0}50%{translate:4px 0}75%{translate:-2px 0}}
+.mini{display:flex;gap:18px;margin-top:10px;color:var(--ink-soft);font-size:14px;font-variant-numeric:tabular-nums}
+.mini b{color:var(--ink)}
+
+/* results */
+.result{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding:10px 0}
+.bigstars{display:flex;gap:8px}
+.bigstars svg{width:56px;height:56px;fill:var(--line)}
+.bigstars svg.got{fill:var(--sun);animation:popin .45s backwards}
+.bigstars svg:nth-child(2){animation-delay:.15s;translate:0 -10px}
+.bigstars svg:nth-child(3){animation-delay:.3s}
+@keyframes popin{from{scale:0;rotate:-40deg}}
+.nums{display:flex;gap:28px;flex-wrap:wrap;justify-content:center}
+.nums div{display:flex;flex-direction:column}
+.nums b{font-family:var(--display);font-size:36px;line-height:1.1;font-variant-numeric:tabular-nums}
+.nums span{font-size:13px;color:var(--ink-soft)}
+.btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.enter-hint{font-size:12px;color:var(--ink-soft)}
+.badge{display:inline-block;background:var(--sun);color:var(--on-candy);font-weight:700;border-radius:999px;padding:2px 12px;font-size:14px}
+
+/* overlay card used by both games */
+.overlay{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;padding:8px 16px;background:color-mix(in srgb,var(--paper) 55%,transparent);backdrop-filter:blur(3px);z-index:5;overflow-y:auto}
+.card{background:var(--paper);border:2px solid var(--ink);box-shadow:0 5px 0 var(--ink);border-radius:20px;padding:16px;max-width:500px;width:100%;display:flex;flex-direction:column;gap:8px;align-items:center;text-align:center}
+.card p{margin:0;color:var(--ink-soft)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.chip{border:2px solid var(--line);background:var(--sky);border-radius:999px;padding:5px 12px;font-weight:500;font-size:14px}
+.chip.on{border-color:var(--ink);background:var(--ink);color:var(--paper)}
+
+/* balloon pop */
+.hud{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;font-variant-numeric:tabular-nums;flex-wrap:wrap}
+.hud .stat{font-family:var(--display);font-size:20px;font-weight:600}
+.hud .stat span{font-family:var(--body);font-size:13px;font-weight:500;color:var(--ink-soft);margin-inline-end:6px}
+.hearts{display:flex;gap:3px}
+.hearts svg{width:24px;height:24px;fill:var(--accent)}
+.hearts svg.gone{fill:var(--line)}
+.sky{position:relative;height:clamp(300px,48vh,440px);border-radius:16px;overflow:hidden;
+  background:linear-gradient(to top,color-mix(in srgb,var(--f3) 22%,var(--sky)) 0,var(--sky) 22%,var(--sky) 100%)}
+.cloud{position:absolute;height:26px;border-radius:999px;background:var(--paper);opacity:.75}
+.cloud::before,.cloud::after{content:"";position:absolute;background:inherit;border-radius:50%}
+.cloud::before{width:34px;height:34px;top:-16px;left:14px}
+.cloud::after{width:24px;height:24px;top:-10px;left:42px}
+.bal{position:absolute;left:0;top:0;display:flex;flex-direction:column;align-items:center;will-change:transform}
+.bal .bb{min-width:62px;height:74px;padding:0 6px;border-radius:50% 50% 47% 47% / 56% 56% 44% 44%;display:grid;place-items:center;
+  background:radial-gradient(circle at 30% 26%,rgba(255,255,255,.6) 0 9%,transparent 10%),var(--c);
+  color:var(--on-candy);font:600 32px/1 var(--display);box-shadow:inset -6px -8px 0 rgba(0,0,0,.08)}
+.bal.word .bb{height:58px;border-radius:30px;padding:0 18px;font-size:26px}
+.bal .knot{width:10px;height:8px;background:var(--c);clip-path:polygon(50% 0,100% 100%,0 100%);margin-top:-1px}
+.bal .str{width:2px;height:34px;background:var(--ink-soft);opacity:.45}
+.bal .done{opacity:.35}
+.bal.target .bb{outline:3px solid var(--ink);outline-offset:2px}
+.bal.gold .bb{--c:var(--sun);box-shadow:0 0 0 4px #fff8,0 0 18px var(--sun)}
+.bal.popped{transition:scale .18s,opacity .18s;scale:1.6;opacity:0}
+.plus{position:absolute;font:700 22px var(--display);color:var(--accent);pointer-events:none;animation:rise .7s forwards}
+@keyframes rise{to{translate:0 -40px;opacity:0}}
+.banner{position:absolute;left:50%;top:40%;translate:-50% -50%;font:700 40px var(--display);color:var(--accent);text-shadow:0 3px 0 var(--paper);pointer-events:none;animation:bannerin 1.2s forwards;z-index:4;white-space:nowrap}
+@keyframes bannerin{0%{scale:.4;opacity:0}20%{scale:1.1;opacity:1}80%{opacity:1}100%{opacity:0;scale:1}}
+
+/* word rocket */
+.rk{display:grid;grid-template-columns:1fr 96px;gap:16px}
+.rk-main{display:flex;flex-direction:column;min-width:0}
+.rk-word{flex:1;display:grid;place-items:center;min-height:170px;background:var(--sky);border-radius:16px;padding:16px;font:600 clamp(40px,8vw,72px)/1.2 var(--display);letter-spacing:.04em;text-align:center;overflow-wrap:anywhere}
+.rk-word .ch.ok{color:var(--ok)}
+.rk-word .ch{color:var(--ink)}
+.rk-word .ch.todo{color:var(--ink-soft)}
+.rk-next{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:10px;font:500 22px var(--display);color:var(--ink-soft);min-height:34px}
+.rk-next span:nth-child(2){opacity:.7}.rk-next span:nth-child(3){opacity:.45}
+.rk-msg{text-align:center;color:var(--ink-soft);font-size:14px;min-height:21px;margin-top:4px}
+.track{position:relative;height:clamp(260px,40vh,340px);border-radius:48px;background:linear-gradient(to top,var(--sky),color-mix(in srgb,var(--f5) 25%,var(--sky)));overflow:hidden}
+.track::before{content:"";position:absolute;left:50%;top:60px;bottom:20px;border-left:3px dotted var(--line)}
+.moon{position:absolute;left:50%;top:10px;translate:-50% 0;width:46px;height:46px;border-radius:50%;background:var(--sun);box-shadow:inset -8px -6px 0 color-mix(in srgb,var(--sun) 70%,#000 12%)}
+.rocket{position:absolute;left:50%;bottom:6%;translate:-50% 0;width:40px;transition:bottom .35s cubic-bezier(.3,1.4,.5,1)}
+.rocket svg{width:40px;height:64px;display:block}
+.rocket .flame{transform-origin:20px 38px;animation:flick .15s infinite alternate}
+@keyframes flick{to{scale:1 .7}}
+.track .stars-bg i{position:absolute;width:4px;height:4px;border-radius:50%;background:var(--ink-soft);opacity:.35}
+@media (max-width:560px){.rk{grid-template-columns:1fr 64px}.track{border-radius:32px}}
+
+/* dock: hint, keyboard, hands */
+.dock{display:flex;flex-direction:column;gap:10px;align-items:center}
+.hint{min-height:34px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;text-align:center;color:var(--ink-soft);font-size:16px}
+.hint b{color:var(--ink)}
+.hint kbd{display:inline-grid;place-items:center;min-width:32px;height:32px;padding:0 8px;border-radius:8px;background:var(--fc);color:var(--on-candy);font-size:20px;font-weight:600;border:2px solid var(--ink)}
+.kb{width:100%;max-width:760px;container-type:inline-size;display:flex;flex-direction:column;gap:6px;user-select:none}
+.kb .row{display:flex;gap:6px;justify-content:center}
+.kb .row.r1{padding-left:calc(var(--u) * .3)}
+.kb .row.r2{padding-left:calc(var(--u) * 1)}
+.kb{--u:calc((100cqw - 66px) / 11.6)}
+.key{position:relative;flex:none;width:var(--u);height:calc(var(--u) * .92);border-radius:calc(var(--u) * .2);display:grid;place-items:center;padding:0;
+  background:color-mix(in srgb,var(--fc) 16%,var(--paper));border:2px solid color-mix(in srgb,var(--fc) 55%,var(--line));
+  box-shadow:0 3px 0 color-mix(in srgb,var(--fc) 55%,var(--line));transition:translate .06s,background .15s}
+.key .main{font:500 calc(var(--u) * .44)/1 var(--display)}
+.key .sub{position:absolute;top:3px;left:5px;font-size:calc(var(--u) * .2);color:var(--ink-soft);text-transform:uppercase;line-height:1}
+.key.bump .main::after{content:"";position:absolute;left:30%;right:30%;bottom:16%;height:3px;border-radius:2px;background:currentColor;opacity:.5}
+.key.space{width:calc(var(--u) * 6);font:500 calc(var(--u) * .28) var(--display);color:var(--ink-soft)}
+.key.pv{background:color-mix(in srgb,var(--fc) 55%,var(--paper))}
+.key.next{background:var(--fc);color:var(--on-candy);border-color:var(--ink);animation:glow 1s ease-in-out infinite}
+.key.next .sub{color:var(--on-candy)}
+.key.hit{translate:0 3px;box-shadow:0 0 0 transparent}
+.key.oops{background:var(--bad);color:#fff}
+@keyframes glow{50%{box-shadow:0 3px 0 var(--ink),0 0 0 6px color-mix(in srgb,var(--fc) 45%,transparent)}}
+.hands{width:100%;max-width:760px;display:flex;justify-content:space-between;padding-inline:8%}
+.hand{display:flex;flex-direction:column;align-items:center}
+.fingers{display:flex;align-items:flex-end;gap:5px;height:60px}
+.fg{width:17px;border-radius:9px 9px 4px 4px;background:color-mix(in srgb,var(--fc) 40%,var(--paper));border:2px solid var(--ink);border-bottom:0;transition:translate .15s,background .15s}
+.fg.lp,.fg.rp{height:30px}.fg.lr,.fg.rr{height:42px}.fg.lm,.fg.rm{height:50px}.fg.li,.fg.ri{height:44px}
+.fg.th{height:26px;border-bottom:2px solid var(--ink);border-radius:9px}
+.left .fg.th{rotate:50deg;translate:2px 6px}
+.right .fg.th{rotate:-50deg;translate:-2px 6px}
+.fg.on{background:var(--fc);translate:0 -8px}
+.left .fg.th.on{translate:2px -2px}.right .fg.th.on{translate:-2px -2px}
+.palm{width:104px;height:28px;margin-top:-1px;border:2px solid var(--ink);border-radius:4px 4px 26px 26px;background:var(--paper)}
+@media (max-width:520px){.hands{padding-inline:0}.fg{width:13px}.fingers{height:50px;gap:3px}.palm{width:80px;height:22px}}
+.note{margin:0;text-align:center;font-size:13px;color:var(--ink-soft)}
+[dir="rtl"] .kb,[dir="rtl"] .hands{direction:ltr}
+
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:50;overflow:hidden}
+.confetti i{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{to{translate:var(--dx) 105vh;rotate:540deg}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <div class="logo" aria-label="Key Pop"><span class="cap">K</span><span class="cap">E</span><span class="cap">Y</span><span class="pop">Pop</span></div>
+      <p class="tagline" id="tagline"></p>
+    </div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Keyboard language">
+        <button id="lang-en" data-lang="en">English</button>
+        <button id="lang-he" data-lang="he" lang="he">עברית</button>
+      </div>
+      <button class="icon-btn" id="soundBtn" aria-pressed="true"></button>
+    </div>
+  </header>
+  <div class="players" id="players"></div>
+  <nav class="modes" id="modes"></nav>
+  <main class="stage" id="stage"></main>
+  <section class="dock">
+    <div class="hint" id="hint" aria-live="polite"></div>
+    <div class="kb" id="kb"></div>
+    <div class="hands" id="hands" aria-hidden="true"></div>
+  </section>
+  <p class="note" id="note"></p>
+</div>
+
+<script>
+/* ---------- keyboard data ---------- */
+const LAYOUT = {
+  en:{KeyQ:'q',KeyW:'w',KeyE:'e',KeyR:'r',KeyT:'t',KeyY:'y',KeyU:'u',KeyI:'i',KeyO:'o',KeyP:'p',
+      KeyA:'a',KeyS:'s',KeyD:'d',KeyF:'f',KeyG:'g',KeyH:'h',KeyJ:'j',KeyK:'k',KeyL:'l',Semicolon:';',Quote:"'",
+      KeyZ:'z',KeyX:'x',KeyC:'c',KeyV:'v',KeyB:'b',KeyN:'n',KeyM:'m',Comma:',',Period:'.',Slash:'/'},
+  he:{KeyQ:'/',KeyW:"'",KeyE:'ק',KeyR:'ר',KeyT:'א',KeyY:'ט',KeyU:'ו',KeyI:'ן',KeyO:'ם',KeyP:'פ',
+      KeyA:'ש',KeyS:'ד',KeyD:'ג',KeyF:'כ',KeyG:'ע',KeyH:'י',KeyJ:'ח',KeyK:'ל',KeyL:'ך',Semicolon:'ף',Quote:',',
+      KeyZ:'ז',KeyX:'ס',KeyC:'ב',KeyV:'ה',KeyB:'נ',KeyN:'מ',KeyM:'צ',Comma:'ת',Period:'ץ',Slash:'.'}
+};
+const ROWS = [
+  ['KeyQ','KeyW','KeyE','KeyR','KeyT','KeyY','KeyU','KeyI','KeyO','KeyP'],
+  ['KeyA','KeyS','KeyD','KeyF','KeyG','KeyH','KeyJ','KeyK','KeyL','Semicolon','Quote'],
+  ['KeyZ','KeyX','KeyC','KeyV','KeyB','KeyN','KeyM','Comma','Period','Slash']
+];
+const FINGER = {KeyQ:'lp',KeyA:'lp',KeyZ:'lp',KeyW:'lr',KeyS:'lr',KeyX:'lr',KeyE:'lm',KeyD:'lm',KeyC:'lm',
+  KeyR:'li',KeyF:'li',KeyV:'li',KeyT:'li',KeyG:'li',KeyB:'li',KeyY:'ri',KeyH:'ri',KeyN:'ri',KeyU:'ri',KeyJ:'ri',KeyM:'ri',
+  KeyI:'rm',KeyK:'rm',Comma:'rm',KeyO:'rr',KeyL:'rr',Period:'rr',KeyP:'rp',Semicolon:'rp',Quote:'rp',Slash:'rp',Space:'th'};
+const FCOLOR = {lp:1,lr:2,lm:3,li:4,ri:4,rm:3,rr:2,rp:1,th:5};
+const LESSONS = [['KeyF','KeyJ'],['KeyD','KeyK'],['KeyS','KeyL'],['KeyA','Semicolon'],['KeyG','KeyH'],
+  ['KeyE','KeyI'],['KeyR','KeyU'],['KeyT','KeyY'],['KeyW','KeyO'],['KeyQ','KeyP'],
+  ['KeyV','KeyM'],['KeyB','KeyN'],['KeyC','Comma'],['KeyX','Period','KeyZ'],null];
+const GROUPS = [['home',[0,1,2,3,4]],['top',[5,6,7,8,9]],['bottom',[10,11,12,13]],['review',[14]]];
+const FINALS = new Set('ךםןףץ'), PUNCT = new Set([';',',','.']);
+const isLetter = c => /\p{L}/u.test(c);
+
+const uniq = a => [...new Set(a)];
+const WORDS = {
+  en: uniq(`a as ad add all ask dad sad lad fad gal gas had has half hall fall flag flash glad glass lass salad shall dash ash
+  cat dog sun fun run hat bat sat mat red bed big pig dig fig jam ham yes kid lid map nap cap tap top hop pop mop cup pup bus bug hug mug rug
+  sky fly fish dish wish ship shop jump hand sand land lamp desk duck luck rock sock frog doll bell tell well hill kiss dress grass class
+  milk cake star moon tree leaf rain snow boat book bird nest cow pink blue gold egg owl fox bee ant hen yak zoo box toy joy sea pie tea key ice
+  apple banana tiger zebra horse mouse house garden flower water happy funny pizza candy music dance smile sunny rainbow unicorn puppy kitten
+  bunny turtle rabbit monkey panda koala dragon castle princess queen king magic cloud river ocean beach shell train plane rocket robot pencil
+  paper school friend sister brother mother father family party cookie juice bread cheese lemon orange purple yellow green white black brown
+  bright jelly honey sugar butterfly penguin giraffe dolphin octopus forest island winter summer spring pillow blanket window muffin pancake
+  popcorn picnic sparkle wonder`.trim().split(/\s+/)),
+  he: uniq(`שלום אבא אמא כלב חתול בית ספר ים שמש פרח תפוח בננה גלידה ציפור דג עץ ירח כוכב חבר משחק שוקולד פיל אריה ארנב סוס פרפר עוגה
+  מים לחם גשם ענן קשת כדור בובה מכונית ילדה ילד מורה גן חלב ביצה תות אבטיח אחות אח סבא סבתא דוב נמר זברה קוף צב שועל ינשוף דבורה נמלה
+  חול גל סירה מטוס רכבת צבע אדום כחול צהוב ירוק לבן שחור ורוד סגול כתום שמח עצוב גדול קטן חם קר יפה טוב לילה בוקר ערב יום שבת חג מתנה
+  בלון שיר ריקוד ציור עיפרון מחק מחברת תיק כיתה חופש קיץ חורף אביב סתיו שלג רוח פיצה פסטה מרק סלט מלפפון גזר תפוז לימון ענבים אגס
+  עוגייה ממתק כובע נעל שמלה חולצה גרביים מיטה כרית שמיכה חלון דלת שולחן כיסא מנורה מפתח שעון טלפון מחשב מקלדת אות מילה סיפור חלום
+  קסם נסיכה מלך מלכה דרקון טירה יער הר נהר אגם פרה כבש תרנגול ברווז דולפין לוויתן כריש תמנון שלג דג לך כל גג שק דלי כד חג סל לול`.trim().split(/\s+/))
+};
+
+const SPELLING_WORDS = {
+  en: ['apple', 'book', 'cat', 'dog', 'egg', 'fish', 'fun', 'go', 'happy', 'I', 'jump', 'king', 'love', 'make', 'name', 'orange', 'play', 'queen', 'read', 'see', 'tree', 'use', 'very', 'walk', 'yes', 'zoo', 'run', 'sit', 'eat', 'bat', 'big', 'box', 'boy', 'bus', 'car', 'day', 'did', 'eat', 'end', 'get', 'got', 'had', 'has', 'hat', 'her', 'him', 'his', 'hot', 'how', 'its', 'jet', 'job', 'let', 'lot', 'may', 'men', 'new', 'not', 'now', 'old', 'one', 'our', 'out', 'put', 'ran', 'red', 'run', 'said', 'say', 'she', 'sit', 'sun', 'ten', 'the', 'too', 'top', 'two', 'was', 'way', 'wet', 'who', 'why', 'win', 'won', 'you'],
+  he: ['אמא', 'אבא', 'כלב', 'חתול', 'דג', 'ציפור', 'ספר', 'בית', 'תפוח', 'בננה', 'גלידה', 'לחם', 'מים', 'עץ', 'ירח', 'שמש', 'כוכב', 'פרח', 'פרפר', 'נמלה', 'דבורה', 'נחש', 'קוף', 'אריה', 'פיל', 'סוס', 'פרה', 'תרנגול', 'ברווז', 'שועל', 'דוב', 'זברה', 'גיראף', 'דולפין', 'לוויתן', 'כריש', 'צבע', 'כדור', 'בובה', 'מכונית', 'אופנוע', 'אופניים', 'רכבת', 'מטוס', 'סירה', 'שיר', 'מוסיקה', 'ריקוד', 'ציור', 'עפרון', 'ספר', 'רדיו', 'טלוויזיה', 'טלפון']
+};
+
+/* ---------- words on screen ---------- */
+const T = {
+  en:{tagline:'Typing practice for little fingers', lessons:'Lessons', lessonsSub:'Learn every key, two at a time',
+    balloon:'Balloon Pop', balloonSub:'Pop letters before they float away', spell:'Spelling', spellSub:'Learn to spell important words',
+    pickLesson:'Pick a lesson', lessonIntro:'Each lesson adds new keys. Go slowly and look at the screen, not your hands.',
+    home:'Home row', top:'Top row', bottom:'Bottom row', review:'Big review', allKeys:'Real words',
+    lesson:'Lesson', back:'← All lessons', accuracy:'Accuracy', wpm:'Words per minute', again:'Try again', next:'Next lesson',
+    stars3:'Amazing!', stars2:'Great job!', stars1:'Nice try! Go a bit slower to win more stars.',
+    press:'Press', with:'with your', space:'space',
+    fingers:{lp:'left pinky',lr:'left ring finger',lm:'left middle finger',li:'left pointer finger',ri:'right pointer finger',rm:'right middle finger',rr:'right ring finger',rp:'right pinky',th:'thumb'},
+    hintIdle:'Rest your fingers on the home row. Pointer fingers go on the keys with bumps: <b>F</b> and <b>J</b>.',
+    note:'No need to switch the computer to Hebrew. The game reads which key is pressed, so both languages work with any keyboard setting.',
+    addPlayer:'Add player', playerN:'Player', who:'Who is playing?', soundOn:'Sound on', soundOff:'Sound off',
+    score:'Score', level:'Level', best:'Best', start:'Start', playAgain:'Play again', gameOver:'The balloons got away!', newBest:'New best!',
+    pairs:{F_J:'F + J', D_K:'D + K', S_L:'S + L', A_SEMI:'A + ;', G_H:'G + H', E_I:'E + I', R_U:'R + U', T_Y:'T + Y', W_O:'W + O', Q_P:'Q + P', V_M:'V + M', B_N:'B + N', C_COMMA:'C + ,', X_PERIOD_Z:'X + . + Z'},
+    bpHow:'Type the letter on a balloon to pop it. If 3 balloons float away, the game is over. Gold balloons give you an extra heart.',
+    short:'Short words', long:'Long words', time:'Time', words:'Words', enterHint:'or press Enter', bpPlaying:'Type the letters on the balloons!', tapHint:'Press Esc to stop',
+    spellHow:'Look at the word and type it. Make a mistake? Press backspace to fix it! Get 3 words right to complete the level.',
+    correct:'Correct!', level:'Level', nextWord:'Next word'},
+  he:{tagline:'תרגול הקלדה לאצבעות קטנות', lessons:'שיעורים', lessonsSub:'לומדות כל מקש, שניים בכל פעם',
+    balloon:'פיצוץ בלונים', balloonSub:'פוצצי אותיות לפני שהן עפות', spell:'איות', spellSub:'למדו איות של מילים חשובות',
+    pickLesson:'בחרי שיעור', lessonIntro:'כל שיעור מוסיף מקשים חדשים. לאט לאט, ולהסתכל על המסך ולא על הידיים.',
+    home:'השורה האמצעית', top:'השורה העליונה', bottom:'השורה התחתונה', review:'חזרה גדולה', allKeys:'מילים אמיתיות',
+    lesson:'שיעור', back:'→ כל השיעורים', accuracy:'דיוק', wpm:'מילים בדקה', again:'עוד פעם', next:'לשיעור הבא',
+    stars3:'מדהים!', stars2:'כל הכבוד!', stars1:'ניסיון יפה! קצת יותר לאט ותקבלי יותר כוכבים.',
+    press:'לחצו על', with:'עם', space:'רווח', wordrush:'מרוץ מילים', wordrushSub:'הקלידו מילים כמהר שאתם יכולות',
+    fingers:{lp:'הזרת השמאלית',lr:'הקמיצה השמאלית',lm:'האמה השמאלית',li:'האצבע המורה השמאלית',ri:'האצבע המורה הימנית',rm:'האמה הימנית',rr:'הקמיצה הימנית',rp:'הזרת הימנית',th:'האגודל'},
+    hintIdle:'הניחי את האצבעות על השורה האמצעית. האצבעות המורות על המקשים עם הבליטות: <b>כ</b> ו־<b>ח</b>.',
+    note:'אין צורך להחליף את שפת המחשב. המשחק מזהה איזה מקש נלחץ, כך ששתי השפות עובדות בכל הגדרת מקלדת.',
+    addPlayer:'הוספת שחקנית', playerN:'שחקנית', who:'מי משחקת?', soundOn:'צליל פועל', soundOff:'צליל כבוי',
+    score:'ניקוד', level:'שלב', best:'שיא', start:'התחלה', playAgain:'עוד משחק', gameOver:'הבלונים ברחו!', newBest:'שיא חדש!',
+    pairs:{F_J:'כ + ח', D_K:'ג + ל', S_L:'ד + ך', A_SEMI:'ש + ף', G_H:'ע + י', E_I:'ק + ן', R_U:'ר + ו', T_Y:'א + ט', W_O:"' + ם", Q_P:'/ + פ', V_M:'ה + צ', B_N:'נ + מ', C_COMMA:'ב + ת', X_PERIOD_Z:'ס + ץ + ז'},
+    bpHow:'הקלידי את האות שעל הבלון כדי לפוצץ אותו. אם 3 בלונים בורחים, המשחק נגמר. בלון זהב נותן לב נוסף.',
+    short:'מילים קצרות', long:'מילים ארוכות', time:'זמן', words:'מילים', enterHint:'או לחצי Enter', bpPlaying:'הקלידי את האותיות שעל הבלונים!', tapHint:'Esc כדי לעצור',
+    spellHow:'תראי את המילה והקלידיה. טעות? לחצי backspace כדי לתקן! תקבלי 3 מילים נכון כדי להשלים את השלב.',
+    correct:'נכון!', level:'שלב', nextWord:'המילה הבאה'}
+};
+const t = k => T[S.lang][k];
+
+/* ---------- icons ---------- */
+const STAR = '<svg viewBox="0 0 24 24" class="%"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg>';
+const HEART = '<svg viewBox="0 0 24 24" class="%"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8 3.4 4.5 7 4.5c2 0 3.6 1.1 5 2.9 1.4-1.8 3-2.9 5-2.9 3.6 0 6 3.5 4.5 7.2C19.5 16.4 12 21 12 21z"/></svg>';
+const ICON = {
+  lessons:'<svg viewBox="0 0 32 32"><rect x="4" y="6" width="24" height="20" rx="5" fill="var(--f4)" stroke="var(--ink)" stroke-width="2.4"/><rect x="8" y="10" width="16" height="11" rx="3" fill="var(--paper)" stroke="var(--ink)" stroke-width="2"/><path d="M16 13v5" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round"/></svg>',
+  balloon:'<svg viewBox="0 0 32 32"><ellipse cx="16" cy="12" rx="9" ry="10" fill="var(--f1)" stroke="var(--ink)" stroke-width="2.4"/><path d="M14 22h4l-2 3z" fill="var(--f1)" stroke="var(--ink)" stroke-width="2"/><path d="M16 25q-3 3 0 6" fill="none" stroke="var(--ink)" stroke-width="2"/><circle cx="12.5" cy="8.5" r="2" fill="var(--paper)"/></svg>',
+  spell:'<svg viewBox="0 0 32 32"><path d="M4 8h24v16H4z" fill="var(--f5)" stroke="var(--ink)" stroke-width="2.2"/><path d="M8 14h16M8 20h12" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round"/></svg>',
+  soundOn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>',
+  soundOff:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>'
+};
+const stars = (n, cls='stars') => `<span class="${cls}">${[1,2,3].map(i=>STAR.replace('%', i<=n?'got':'')).join('')}</span>`;
+
+/* ---------- saved state (per browser) ---------- */
+const KEY = 'keypop.v1';
+let S;
+try { S = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch(e) { S = null; }
+if (!S || !Array.isArray(S.players) || !S.players.length) S = {players:[{id:'p1',name:'Player 1'},{id:'p2',name:'Player 2'}], current:'p1', lang:'en', sound:true, progress:{}};
+if (!S.players.find(p=>p.id===S.current)) S.current = S.players[0].id;
+S.progress ||= {};
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} };
+function prog(){ const p = S.progress[S.current] ||= {}; const l = p[S.lang] ||= {}; l.stars ||= {}; l.best ||= {}; return l; }
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const shuffle = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const dir = () => S.lang==='he' ? 'rtl' : 'ltr';
+const stage = $('#stage'), kb = $('#kb'), hands = $('#hands'), hint = $('#hint');
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function charToCode(ch){ if (ch===' ') return 'Space'; const L = LAYOUT[S.lang]; return Object.keys(L).find(k=>L[k]===ch) || null; }
+const keep = (lang, code) => { if (code==='Slash') return false; const c = LAYOUT[lang][code]; return isLetter(c) || (lang==='en' && PUNCT.has(c)); };
+const lessonChars = (lang,i) => (LESSONS[i]||[]).filter(c=>keep(lang,c)).map(c=>LAYOUT[lang][c]);
+const cumChars = (lang,i) => { const s=[]; for (let k=0;k<=Math.min(i,13);k++) s.push(...lessonChars(lang,k)); return s; };
+
+/* ---------- sound ---------- */
+let actx = null;
+function audio(){
+  if (!S.sound) return null;
+  try { actx ||= new (window.AudioContext||window.webkitAudioContext)(); if (actx.state==='suspended') actx.resume(); } catch(e) { return null; }
+  return actx;
+}
+function tone(f, d=.08, type='sine', v=.07, when=0){
+  const a = audio(); if (!a) return;
+  const o = a.createOscillator(), g = a.createGain(), t0 = a.currentTime + when;
+  o.type = type; o.frequency.setValueAtTime(f, t0);
+  g.gain.setValueAtTime(v, t0); g.gain.exponentialRampToValueAtTime(.0001, t0+d);
+  o.connect(g).connect(a.destination); o.start(t0); o.stop(t0+d+.03);
+}
+const sfx = {
+  tick:()=>tone(700,.05,'triangle',.05),
+  err:()=>tone(170,.15,'square',.035),
+  pop:()=>{ tone(900,.06,'triangle',.08); tone(1400,.09,'sine',.05,.04); },
+  lose:()=>[392,330].forEach((f,i)=>tone(f,.16,'triangle',.07,i*.12)),
+  win:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.2,'triangle',.08,i*.11)),
+  over:()=>[392,330,262].forEach((f,i)=>tone(f,.22,'triangle',.08,i*.16)),
+  zoom:()=>{ const a=audio(); if(!a) return; const o=a.createOscillator(),g=a.createGain(),t0=a.currentTime; o.type='sawtooth'; o.frequency.setValueAtTime(220,t0); o.frequency.exponentialRampToValueAtTime(880,t0+.18); g.gain.setValueAtTime(.03,t0); g.gain.exponentialRampToValueAtTime(.0001,t0+.2); o.connect(g).connect(a.destination); o.start(t0); o.stop(t0+.22); }
+};
+
+function confetti(){
+  if (reduced) return;
+  const box = document.createElement('div'); box.className = 'confetti';
+  const cols = ['--f1','--f2','--f3','--f4','--f5','--sun','--accent'];
+  for (let i=0;i<70;i++){
+    const p = document.createElement('i');
+    p.style.left = Math.random()*100+'vw';
+    p.style.background = `var(${pick(cols)})`;
+    p.style.setProperty('--dx', (Math.random()*160-80)+'px');
+    p.style.animationDuration = (1.4+Math.random()*1.4)+'s';
+    p.style.animationDelay = (Math.random()*.4)+'s';
+    box.appendChild(p);
+  }
+  document.body.appendChild(box); setTimeout(()=>box.remove(), 3400);
+}
+
+/* ---------- chrome: header, players, modes, keyboard ---------- */
+let mode = 'lessons', onChar = null, onEscape = null, renaming = null;
+
+function renderChrome(){
+  document.documentElement.lang = S.lang; document.documentElement.dir = dir();
+  $('#tagline').textContent = t('tagline');
+  $('#note').textContent = t('note');
+  $('#lang-en').classList.toggle('on', S.lang==='en');
+  $('#lang-he').classList.toggle('on', S.lang==='he');
+  const sb = $('#soundBtn'); sb.innerHTML = S.sound ? ICON.soundOn : ICON.soundOff;
+  sb.setAttribute('aria-pressed', S.sound); sb.title = S.sound ? t('soundOn') : t('soundOff'); sb.setAttribute('aria-label', sb.title);
+  renderPlayers(); renderModes(); renderKB();
+}
+function renderPlayers(){
+  $('#players').innerHTML = `<span class="who">${t('who')}</span>` + S.players.map((p,i)=>{
+    const c = `f${(i%5)+1}`;
+    if (renaming===p.id) return `<span class="pl on ${c}"><span class="av"></span><input id="rename-${p.id}" value="${esc(p.name)}" maxlength="16" aria-label="Name"></span>`;
+    return `<button class="pl ${c} ${p.id===S.current?'on':''}" data-pid="${p.id}"><span class="av"></span>${esc(p.name)}</button>`;
+  }).join('') + (S.players.length<6 ? `<button class="pl add" data-add="1">+ ${t('addPlayer')}</button>` : '');
+  if (renaming){
+    const inp = $('#rename-'+renaming); inp.focus(); inp.select();
+    const done = () => { const p = S.players.find(x=>x.id===renaming); if (p && inp.value.trim()) p.name = inp.value.trim(); renaming = null; save(); renderPlayers(); };
+    inp.addEventListener('blur', done, {once:true});
+    inp.addEventListener('keydown', e=>{ if (e.key==='Enter' || e.key==='Escape'){ e.preventDefault(); inp.blur(); } });
+  }
+}
+$('#players').addEventListener('click', e=>{
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.add){
+    const id = 'p'+Date.now();
+    S.players.push({id, name:`${t('playerN')} ${S.players.length+1}`});
+    S.current = id; renaming = id; save(); go(mode); return;
+  }
+  const id = b.dataset.pid;
+  if (id===S.current){ renaming = id; renderPlayers(); return; }
+  S.current = id; save(); go(mode);
+});
+function renderModes(){
+  const modes = [{id:'lessons',icon:'lessons',label:T[S.lang]['lessons'],sub:T[S.lang]['lessonsSub']},
+    {id:'balloon',icon:'balloon',label:T[S.lang]['balloon'],sub:T[S.lang]['balloonSub']},
+    {id:'wordrush',icon:'balloon',label:T[S.lang]['wordrush'],sub:T[S.lang]['wordrushSub']}];
+  $('#modes').innerHTML = modes.map(m=>
+    `<button class="mode ${mode===m.id?'on':''}" data-mode="${m.id}"><span class="mi">${ICON[m.icon]}</span><span><b>${m.label}</b><small>${m.sub}</small></span></button>`).join('');
+}
+$('#modes').addEventListener('click', e=>{ const b = e.target.closest('[data-mode]'); if (b) go(b.dataset.mode); });
+document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click', ()=>{ if (S.lang===b.dataset.lang) return; S.lang = b.dataset.lang; save(); renderChrome(); go(mode); }));
+$('#soundBtn').addEventListener('click', ()=>{ S.sound = !S.sound; save(); renderChrome(); if (S.sound) sfx.tick(); });
+
+function renderKB(){
+  const L = LAYOUT[S.lang];
+  kb.innerHTML = ROWS.map((r,ri)=>`<div class="row r${ri}">${r.map(code=>
+    `<button class="key f${FCOLOR[FINGER[code]]}${code==='KeyF'||code==='KeyJ'?' bump':''}" data-code="${code}" tabindex="-1" aria-label="${esc(L[code])}"><span class="main">${esc(L[code])}</span>${S.lang==='he'?`<span class="sub">${esc(LAYOUT.en[code])}</span>`:''}</button>`).join('')}</div>`).join('')
+    + `<div class="row"><button class="key space f5" data-code="Space" tabindex="-1">${t('space')}</button></div>`;
+  hands.innerHTML = `<div class="hand left"><div class="fingers">${['lp','lr','lm','li','th'].map(f=>`<span class="fg ${f} f${FCOLOR[f]}"></span>`).join('')}</div><div class="palm"></div></div>`
+    + `<div class="hand right"><div class="fingers">${['th','ri','rm','rr','rp'].map(f=>`<span class="fg ${f} f${FCOLOR[f]}"></span>`).join('')}</div><div class="palm"></div></div>`;
+}
+kb.addEventListener('mousedown', e=>e.preventDefault());
+kb.addEventListener('click', e=>{ const k = e.target.closest('.key'); if (k) press(k.dataset.code); });
+
+function setNext(code){
+  kb.querySelectorAll('.next').forEach(k=>k.classList.remove('next'));
+  hands.querySelectorAll('.on').forEach(f=>f.classList.remove('on'));
+  if (!code){ hint.innerHTML = t('hintIdle'); return; }
+  kb.querySelector(`[data-code="${code}"]`)?.classList.add('next');
+  const f = FINGER[code];
+  hands.querySelectorAll('.fg.'+f).forEach(x=>x.classList.add('on'));
+  const label = code==='Space' ? t('space') : LAYOUT[S.lang][code];
+  hint.innerHTML = `${t('press')} <kbd class="f${FCOLOR[f]}">${esc(label)}</kbd> ${t('with')} <b>${t('fingers')[f]}</b>`;
+}
+function setHint(html){ setNext(null); hint.innerHTML = html; }
+function preview(chars){
+  kb.querySelectorAll('.pv').forEach(k=>k.classList.remove('pv'));
+  (chars||[]).forEach(c=>{ const code = charToCode(c); if (code) kb.querySelector(`[data-code="${code}"]`)?.classList.add('pv'); });
+}
+function flashKey(code, ok){
+  const k = kb.querySelector(`[data-code="${code}"]`); if (!k) return;
+  const cls = ok ? 'hit' : 'oops';
+  k.classList.remove('hit','oops'); void k.offsetWidth; k.classList.add(cls);
+  setTimeout(()=>k.classList.remove(cls), ok ? 110 : 260);
+}
+
+/* ---------- input ---------- */
+function press(code){
+  if (!onChar) return;
+  const ch = code==='Space' ? ' ' : LAYOUT[S.lang][code];
+  if (ch==null) return;
+  audio();
+  const ok = onChar(ch, code);
+  flashKey(code, ok!==false);
+}
+document.addEventListener('keydown', e=>{
+  if (e.target.closest && e.target.closest('input,textarea')) return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.key==='Escape'){ onEscape && onEscape(); return; }
+  if (e.key==='Enter'){ const b = stage.querySelector('[data-enter]'); if (b){ e.preventDefault(); b.click(); } return; }
+  if (e.key==='Backspace'){ e.preventDefault(); if (Ls) lessonBackspace(); return; }
+  let code = e.code;
+  if (!(code in LAYOUT.en) && code!=='Space'){
+    code = null;
+    for (const lang of ['en','he']){ const L = LAYOUT[lang]; const k = Object.keys(L).find(c=>L[c]===e.key.toLowerCase()); if (k){ code = k; break; } }
+    if (e.key===' ') code = 'Space';
+  }
+  if (!code || !onChar) return;
+  e.preventDefault();
+  if (e.repeat) return;
+  press(code);
+});
+
+/* ---------- mode switching ---------- */
+function cleanup(){
+  onChar = null; onEscape = null;
+  B.running = false; cancelAnimationFrame(B.raf);
+  WR.running = false;
+  preview(null); setNext(null);
+}
+function go(m){
+  cleanup(); mode = m; renderModes();
+  if (m==='lessons') showLessons(); else if (m==='balloon') showBalloon(); else if (m==='wordrush') showWordRush();
+}
+stage.addEventListener('click', e=>{
+  const a = e.target.closest('[data-act]'); if (!a) return;
+  const act = a.dataset.act;
+  if (act==='lesson') startLesson(+a.dataset.i);
+  else if (act==='lessons') showLessons();
+  else if (act==='bstart') bStart();
+  else if (act==='bpresets') bPreset(a.dataset.v);
+  else if (act==='wr') wrStart();
+});
+
+/* ---------- lessons ---------- */
+function genLesson(lang, i){
+  if (i===14) return shuffle(WORDS[lang].filter(w=>w.length>=3 && w.length<=7)).slice(0,12).join(' ');
+  const fresh = lessonChars(lang,i), pool = cumChars(lang,i), allowed = new Set(pool);
+  const words = i>=3 ? WORDS[lang].filter(w=>w.length>=2 && w.length<=6 && [...w].every(c=>allowed.has(c))) : [];
+  const freshWords = words.filter(w=>fresh.some(c=>w.includes(c)));
+  const mid = arr => arr.filter(c=>!FINALS.has(c) && !PUNCT.has(c));
+  const groups = [];
+  while (groups.length < 20){
+    if (words.length>=3 && Math.random()<.4){ groups.push(pick(freshWords.length && Math.random()<.6 ? freshWords : words)); continue; }
+    const len = 1 + Math.floor(Math.random()*4); let g = '';
+    for (let k=0;k<len;k++){
+      let src = Math.random()<.5 ? fresh : pool;
+      if (k<len-1){ src = mid(src); if (!src.length) src = mid(pool); if (!src.length) src = pool; }
+      g += pick(src);
+    }
+    groups.push(g);
+  }
+  return shuffle(groups).slice(0,20).join(' ');
+}
+function showLessons(){
+  cleanup(); mode = 'lessons'; renderModes();
+  const st = prog().stars;
+  let up = 0; while (up<14 && st[up]) up++;
+  stage.innerHTML = `<div class="stage-head"><h2>${t('pickLesson')}</h2><p>${t('lessonIntro')}</p></div>`
+    + GROUPS.map(([g, items])=>`<section class="lgroup"><h3>${t(g)}</h3><div class="ltiles">${items.map(i=>{
+        const keys = lessonChars(S.lang,i);
+        const caps = i===14 ? `<span class="alltxt">${t('allKeys')}</span>` : keys.map(c=>`<kbd>${esc(c)}</kbd>`).join('');
+        return `<button class="tile ${i===up?'up':''}" data-act="lesson" data-i="${i}"><span class="num">${i+1}</span><span class="caps">${caps}</span>${stars(st[i]||0)}</button>`;
+      }).join('')}</div></section>`).join('');
+  stage.querySelectorAll('.tile').forEach(tl=>{
+    const i = +tl.dataset.i;
+    tl.addEventListener('mouseenter', ()=>preview(i===14 ? [] : lessonChars(S.lang,i)));
+    tl.addEventListener('mouseleave', ()=>preview(null));
+  });
+}
+let Ls = null, spans = [];
+function startLesson(i){
+  cleanup();
+  const chars = [...genLesson(S.lang,i)];
+  Ls = {i, chars, pos:0, errors:0, t0:0, hasError:false};
+  stage.innerHTML = `<div class="play-bar"><button class="ghost" data-act="lessons">${t('back')}</button><span class="ptitle">${t('lesson')} ${i+1}</span><div class="meter"><div class="fill" id="pfill"></div></div></div>
+    <div class="typetext" dir="${dir()}">${chars.map((c,k)=>c===' ' ? `<span class="ch sp" data-i="${k}"> </span>` : `<span class="ch" data-i="${k}">${esc(c)}</span>`).join('')}</div>
+    <div class="mini"><span>${t('accuracy')}: <b id="accv">100%</b></span></div>`;
+  spans = [...stage.querySelectorAll('.ch')];
+  markLesson();
+  onChar = lessonChar; onEscape = showLessons;
+}
+function markLesson(){
+  spans[Ls.pos].classList.add('cur');
+  setNext(charToCode(Ls.chars[Ls.pos]));
+  $('#pfill').style.width = (100*Ls.pos/Ls.chars.length)+'%';
+}
+function lessonChar(ch){
+  if (!Ls.t0) Ls.t0 = performance.now();
+  const el = spans[Ls.pos];
+  if (Ls.hasError) return false;
+  if (ch===Ls.chars[Ls.pos]){
+    el.classList.remove('cur','shake','bad'); el.classList.add('ok');
+    el.textContent = Ls.chars[Ls.pos];
+    Ls.pos++; sfx.tick();
+    if (Ls.pos>=Ls.chars.length){ finishLesson(); return true; }
+    markLesson(); return true;
+  }
+  Ls.errors++; Ls.hasError = true;
+  el.textContent = ch; el.classList.add('bad'); el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
+  $('#accv').textContent = Math.round(100*Ls.pos/(Ls.pos+Ls.errors||1))+'%';
+  sfx.err(); return false;
+}
+function lessonBackspace(){
+  if (!Ls || !Ls.hasError) return;
+  const el = spans[Ls.pos];
+  el.textContent = Ls.chars[Ls.pos];
+  el.classList.remove('bad','shake');
+  Ls.hasError = false;
+  sfx.tick();
+}
+function finishLesson(){
+  const n = Ls.chars.length, mins = Math.max((performance.now()-Ls.t0)/60000, 1/60);
+  const acc = Math.round(100*n/(n+Ls.errors)), wpm = Math.round((n/5)/mins);
+  const st = acc>=95 ? 3 : acc>=85 ? 2 : 1;
+  const p = prog(); p.stars[Ls.i] = Math.max(p.stars[Ls.i]||0, st); save();
+  cleanup(); onEscape = showLessons;
+  const i = Ls.i;
+  stage.innerHTML = `<div class="result">${stars(st,'bigstars')}<h2>${t('stars'+st)}</h2>
+    <div class="nums"><div><b>${acc}%</b><span>${t('accuracy')}</span></div><div><b>${wpm}</b><span>${t('wpm')}</span></div></div>
+    <div class="btns"><button class="btn" data-act="lesson" data-i="${i}">${t('again')}</button>
+    ${i<14 ? `<button class="btn primary" data-act="lesson" data-i="${i+1}" data-enter>${t('next')}</button>` : `<button class="btn primary" data-act="lessons" data-enter>${t('back')}</button>`}</div>
+    <span class="enter-hint">${t('enterHint')}</span></div>`;
+  sfx.win(); if (st===3) confetti();
+}
+
+/* ---------- balloon pop ---------- */
+const B = {selected:new Set(), running:false, list:[], speed:1, wrongKeys:0};
+const PAIR_KEYS = {F_J:['KeyF','KeyJ'],D_K:['KeyD','KeyK'],S_L:['KeyS','KeyL'],A_SEMI:['KeyA','Semicolon'],G_H:['KeyG','KeyH'],
+  E_I:['KeyE','KeyI'],R_U:['KeyR','KeyU'],T_Y:['KeyT','KeyY'],W_O:['KeyW','KeyO'],Q_P:['KeyQ','KeyP'],
+  V_M:['KeyV','KeyM'],B_N:['KeyB','KeyN'],C_COMMA:['KeyC','Comma'],X_PERIOD_Z:['KeyX','Period','KeyZ']};
+const ROW_GROUPS = {home:[0,1,2,3,4], top:[5,6,7,8,9], bottom:[10,11,12,13]};
+function balloonPool(){
+  if (B.selected.size===0) return [];
+  const codes = [];
+  for (const pair of B.selected) { codes.push(...(PAIR_KEYS[pair]||[])); }
+  return codes.map(c=>LAYOUT[S.lang][c]);
+}
+function showBalloon(){
+  cleanup();
+  if (B.selected.size===0) B.selected.add('F_J');
+  const pairsHtml = Object.entries(t('pairs')).map(([k,v])=>`<button class="chip" data-pair="${k}" style="font-size:13px;padding:6px 10px;${B.selected.has(k)?'border-color:var(--ink);background:var(--ink);color:var(--paper)':''}" data-pair-check>${v}</button>`).join('');
+  const bestKey = Array.from(B.selected).sort().join('_');
+  const best = prog().best['balloon_'+bestKey] || 0;
+  stage.innerHTML = `<div class="hud"><span class="stat"><span>${t('score')}</span><b id="bScore">0</b></span><span class="stat"><span>${t('level')}</span><b id="bLevel">1</b></span><span class="hearts" id="bHearts"></span><span id="wrongMsg" style="font-size:13px;color:var(--bad);font-weight:600;min-height:20px"></span></div>
+    <div class="sky" id="sky" dir="ltr">
+      <div class="cloud" style="width:80px;top:16%;left:8%"></div><div class="cloud" style="width:110px;top:34%;right:10%"></div><div class="cloud" style="width:70px;top:62%;left:40%"></div>
+      <div class="overlay" id="bOv" dir="${dir()}"><div class="card"><h2>${t('balloon')}</h2><p>${t('bpHow')}</p>
+        <div style="display:flex;gap:4px;margin:4px 0;flex-wrap:wrap;justify-content:center;font-size:11px">
+          <button class="chip" data-act="bpresets" data-v="all" style="padding:3px 8px;font-size:11px">All</button>
+          <button class="chip" data-act="bpresets" data-v="home" style="padding:3px 8px;font-size:11px">Home</button>
+          <button class="chip" data-act="bpresets" data-v="top" style="padding:3px 8px;font-size:11px">Top</button>
+          <button class="chip" data-act="bpresets" data-v="bottom" style="padding:3px 8px;font-size:11px">Bottom</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:6px 0;font-size:10px">${pairsHtml}</div>
+        <div style="margin:8px 0;display:flex;align-items:center;gap:6px;font-size:12px"><label style="color:var(--ink-soft);min-width:40px">Speed:</label><input type="range" id="speedSlider" min="0.5" max="2" step="0.25" value="1" style="flex:1;cursor:pointer;height:3px"><span id="speedVal" style="font-size:11px;min-width:20px">1x</span></div>
+        ${best?`<span class="badge" style="font-size:11px;padding:2px 8px">${t('best')}: ${best}</span>`:''}
+        <button class="btn primary" data-act="bstart" data-enter style="margin-top:4px;padding:6px 12px;font-size:14px">${t('start')}</button><span class="enter-hint" style="font-size:11px">${t('enterHint')}</span></div></div>
+    </div>`;
+  drawHearts(3);
+  setHint(t('hintIdle'));
+  stage.querySelectorAll('[data-pair-check]').forEach(btn=>btn.addEventListener('click', e=>{
+    if (B.selected.has(e.target.dataset.pair)) B.selected.delete(e.target.dataset.pair);
+    else B.selected.add(e.target.dataset.pair);
+    if (B.selected.size===0) { B.selected.add('F_J'); showBalloon(); } else showBalloon();
+  }));
+  stage.querySelector('#speedSlider')?.addEventListener('input', e=>{B.speed=parseFloat(e.target.value); $('#speedVal').textContent=(B.speed.toFixed(2))+'x';});
+}
+function drawHearts(n){ $('#bHearts').innerHTML = Array.from({length:Math.max(3,n)},(_,i)=>HEART.replace('%', i<n?'':'gone')).join(''); }
+function bPreset(v){
+  B.selected.clear();
+  if (v==='all'){
+    Object.keys(PAIR_KEYS).forEach(k=>B.selected.add(k));
+  } else if (v==='home'){
+    ROW_GROUPS.home.forEach(i=>B.selected.add(Object.keys(PAIR_KEYS)[i]));
+  } else if (v==='top'){
+    ROW_GROUPS.top.forEach(i=>B.selected.add(Object.keys(PAIR_KEYS)[i]));
+  } else if (v==='bottom'){
+    ROW_GROUPS.bottom.forEach(i=>B.selected.add(Object.keys(PAIR_KEYS)[i]));
+  }
+  showBalloon();
+}
+function bStart(){
+  cleanup();
+  B.list.forEach(b=>b.el.remove());
+  Object.assign(B, {running:true, list:[], score:0, lives:3, level:1, pops:0, spawned:0, target:null, elapsed:0, nextSpawn:0, last:performance.now(), pool:balloonPool()});
+  $('#bOv').remove();
+  $('#bScore').textContent = 0; $('#bLevel').textContent = 1; drawHearts(3);
+  setHint(`${t('bpPlaying')} <span style="opacity:.7">· ${t('tapHint')}</span>`);
+  onChar = bChar; onEscape = ()=>bOver();
+  B.raf = requestAnimationFrame(bLoop);
+}
+const travel = () => (Math.max(3.2, 8.5-(B.level-1)*.55)) / B.speed;
+const gap = () => (Math.max(.55, 1.7-(B.level-1)*.12)) / B.speed;
+function bSpawn(W,H){
+  const text = pick(B.pool);
+  const gold = (++B.spawned % 12)===0;
+  const bad = !gold && Math.random()<0.15;
+  const colors = ['--f1','--f2','--f3','--f4','--f5'];
+  const el = document.createElement('div');
+  el.className = 'bal' + (B.words?' word':'') + (gold?' gold':'') + (bad?' bad':'');
+  el.style.setProperty('--c', `var(${bad ? '--bad' : pick(colors)})`);
+  el.innerHTML = `<div class="bb" dir="auto">${bad?'⚠️ ':''}${esc(text)}</div><div class="knot"></div><div class="str"></div>`;
+  $('#sky').appendChild(el);
+  const w = el.offsetWidth, h = el.offsetHeight;
+  let x, tries = 0;
+  do { x = 8 + Math.random()*Math.max(1, W-w-16); tries++; }
+  while (tries<8 && B.list.some(b=>b.y > H-h*1.4 && Math.abs(b.x-x) < w));
+  const b = {el, text, typed:0, x, y:H, h, gold, bad, v:(H+h)/travel()};
+  el.style.transform = `translate(${x}px,${H}px)`;
+  B.list.push(b);
+}
+function bLoop(now){
+  if (!B.running) return;
+  const sky = $('#sky'); if (!sky){ B.running = false; return; }
+  const dt = Math.min(.05, (now-B.last)/1000); B.last = now; B.elapsed += dt;
+  const H = sky.clientHeight, W = sky.clientWidth;
+  if (B.elapsed >= B.nextSpawn && B.list.length < 9){ bSpawn(W,H); B.nextSpawn = B.elapsed + gap(); }
+  for (const b of B.list.slice()){
+    b.y -= b.v*dt;
+    b.el.style.transform = `translate(${b.x}px,${b.y}px)`;
+    if (b.y < -b.h) bEscape(b);
+  }
+  if (B.running) B.raf = requestAnimationFrame(bLoop);
+}
+function bRemove(b){ B.list = B.list.filter(x=>x!==b); if (B.target===b) B.target = null; }
+function bEscape(b){
+  b.el.remove(); bRemove(b);
+  if (b.gold) return;
+  B.lives--; drawHearts(B.lives); sfx.lose();
+  if (B.lives<=0) bOver();
+}
+function bPop(b){
+  if (b.bad){
+    bRemove(b);
+    B.lives--; drawHearts(B.lives);
+    const msg = document.createElement('div'); msg.className = 'banner'; msg.textContent = '☠️ Bad balloon!'; msg.style.color = 'var(--bad)';
+    msg.style.left = (b.x+10)+'px'; msg.style.top = (b.y+10)+'px';
+    $('#sky').appendChild(msg); setTimeout(()=>msg.remove(), 1200);
+    b.el.classList.add('popped'); setTimeout(()=>b.el.remove(), 200);
+    sfx.lose();
+    if (B.lives<=0) bOver();
+    return;
+  }
+  bRemove(b);
+  const pts = (B.words ? b.text.length*10 : 10) * B.level * (b.gold?3:1);
+  B.score += pts; B.pops++;
+  if (b.gold){ B.lives = Math.min(5, B.lives+1); drawHearts(B.lives); }
+  $('#bScore').textContent = B.score;
+  const plus = document.createElement('div'); plus.className = 'plus'; plus.textContent = '+'+pts;
+  plus.style.left = (b.x+10)+'px'; plus.style.top = (b.y+10)+'px'; $('#sky').appendChild(plus); setTimeout(()=>plus.remove(), 700);
+  b.el.classList.add('popped'); setTimeout(()=>b.el.remove(), 200);
+  sfx.pop();
+  if (B.pops % 10 === 0){
+    B.level++; $('#bLevel').textContent = B.level;
+    B.list.forEach(x=>x.v *= 1.08);
+    const bn = document.createElement('div'); bn.className = 'banner'; bn.textContent = `${t('level')} ${B.level}!`;
+    $('#sky').appendChild(bn); setTimeout(()=>bn.remove(), 1200);
+  }
+}
+function drawTyped(b){
+  const chars = [...b.text];
+  b.el.querySelector('.bb').innerHTML = `<span><span class="done">${esc(chars.slice(0,b.typed).join(''))}</span>${esc(chars.slice(b.typed).join(''))}</span>`;
+}
+function bChar(ch){
+  if (ch===' ') return;
+  if (B.target){
+    const b = B.target;
+    if ([...b.text][b.typed]===ch){
+      b.typed++; B.wrongKeys = 0; $('#wrongMsg').textContent = '';
+      sfx.tick();
+      if (b.typed>=[...b.text].length) bPop(b); else drawTyped(b);
+      return true;
+    }
+    B.wrongKeys++; sfx.err();
+    $('#wrongMsg').textContent = `⚠️ ${B.wrongKeys}/3 wrong keys`;
+    if (B.wrongKeys >= 3){ B.wrongKeys = 0; B.lives--; drawHearts(B.lives); sfx.lose();
+      $('#wrongMsg').textContent = '💔 Lost a heart!'; setTimeout(()=>$('#wrongMsg').textContent = '', 1500);
+      if (B.lives<=0) bOver();
+    }
+    return false;
+  }
+  const cands = B.list.filter(b=>[...b.text][0]===ch).sort((a,b)=>a.y-b.y);
+  if (!cands.length){
+    B.wrongKeys++; sfx.err();
+    $('#wrongMsg').textContent = `⚠️ ${B.wrongKeys}/3 wrong keys`;
+    if (B.wrongKeys >= 3){ B.wrongKeys = 0; B.lives--; drawHearts(B.lives); sfx.lose();
+      $('#wrongMsg').textContent = '💔 Lost a heart!'; setTimeout(()=>$('#wrongMsg').textContent = '', 1500);
+      if (B.lives<=0) bOver();
+    }
+    return false;
+  }
+  const b = cands[0];
+  B.wrongKeys = 0; $('#wrongMsg').textContent = '';
+  if ([...b.text].length===1){ bPop(b); return true; }
+  B.target = b; b.typed = 1; b.el.classList.add('target'); drawTyped(b); sfx.tick();
+  return true;
+}
+function bOver(){
+  if (!B.running) return;
+  B.running = false; cancelAnimationFrame(B.raf); onChar = null;
+  const p = prog(), k = 'balloon_'+Array.from(B.selected).sort().join('_'), isBest = B.score > (p.best[k]||0);
+  if (isBest) p.best[k] = B.score; save();
+  sfx.over();
+  const ov = document.createElement('div'); ov.className = 'overlay'; ov.dir = dir();
+  ov.innerHTML = `<div class="card"><h2>${t('gameOver')}</h2>
+    <div class="nums"><div><b>${B.score}</b><span>${t('score')}</span></div><div><b>${B.level}</b><span>${t('level')}</span></div></div>
+    ${isBest && B.score>0 ? `<span class="badge">${t('newBest')}</span>` : `<span class="badge">${t('best')}: ${p.best[k]||0}</span>`}
+    <div class="btns"><button class="btn" data-act="bstart" data-enter>${t('playAgain')}</button></div>
+    <span class="enter-hint">${t('enterHint')}</span></div>`;
+  $('#sky').appendChild(ov);
+  onEscape = showBalloon;
+  if (isBest && B.score>0) confetti();
+  setHint(t('hintIdle'));
+}
+
+/* ---------- word rush game ---------- */
+const WR = {running:false, words:[], wi:0, score:0, level:1, raf:null};
+function showWordRush(){
+  cleanup();
+  const best = prog().best['wordrush'] || 0;
+  stage.innerHTML = `<div class="hud"><span class="stat"><span>${t('score')}</span><b id="wrScore">0</b></span><span class="stat"><span>${t('level')}</span><b id="wrLevel">1</b></span></div>
+    <div class="sky" id="wrSky" dir="${dir()}" style="position:relative;height:400px;background:var(--sky);border-radius:16px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:48px;font-weight:600;color:var(--ink-soft)">
+      <div class="overlay" id="wrOv" dir="${dir()}"><div class="card" style="padding:12px;max-width:400px"><h2 style="margin:4px 0 6px">Word Rush</h2><p style="font-size:12px;margin:0 0 6px">Type the words as quickly as you can!</p>
+        <div style="display:flex;gap:6px;margin:6px 0;align-items:center;font-size:11px"><label>Speed:</label><input type="range" id="wrSpeed" min="0.5" max="2" step="0.25" value="1" style="flex:1;cursor:pointer;height:4px"><span id="wrSpeedVal" style="font-size:10px">1x</span></div>
+        ${best?`<span class="badge" style="font-size:12px;padding:2px 8px">Best: ${best}</span>`:''}
+        <button class="btn primary" data-act="wr" data-enter style="padding:8px 16px;font-size:14px;margin-top:6px">Start</button><span class="enter-hint" style="font-size:10px">${t('enterHint')}</span></div></div>
+    </div>`;
+  setHint('Type each word quickly!');
+  stage.querySelector('#wrSpeed')?.addEventListener('input', e=>{$('#wrSpeedVal').textContent=(parseFloat(e.target.value).toFixed(2))+'x';});
+}
+function wrStart(){
+  cleanup();
+  Object.assign(WR, {running:true, words:shuffle(WORDS[S.lang].slice()), wi:0, score:0, level:1, typed:''});
+  $('#wrOv')?.remove();
+  $('#wrScore').textContent = 0; $('#wrLevel').textContent = 1;
+  setHint('Type each word!');
+  wrDraw();
+  onChar = wrChar; onEscape = ()=>wrEnd();
+}
+function wrDraw(){
+  const w = WR.words[WR.wi]||'done';
+  const chars = [...w];
+  const display = chars.map((c,i)=>`<span style="color:${i<WR.typed.length?'var(--ok)':'var(--ink)'};font-family:var(--display)">${esc(c)}</span>`).join('');
+  $('#wrSky').innerHTML = `<div style="text-align:center"><div style="font-size:56px;font-weight:700;margin:20px;font-family:var(--display)">${display}</div><div style="font-size:14px;color:var(--ink-soft)">Type it!</div></div>`;
+}
+function wrChar(ch){
+  const w = WR.words[WR.wi];
+  if (!w) return false;
+  if (ch===[...w][WR.typed.length]){ WR.typed+=ch; WR.score+=5*WR.level; $('#wrScore').textContent=WR.score; sfx.tick();
+    if(WR.typed.length===[...w].length){ WR.wi++; WR.typed=''; if(WR.wi%10===0){ WR.level++; $('#wrLevel').textContent=WR.level; sfx.win(); } wrDraw(); } else wrDraw(); return true; }
+  sfx.err(); return false;
+}
+function wrEnd(){
+  if(!WR.running) return;
+  WR.running=false; onChar=null;
+  const p=prog(), k='wordrush', isBest = WR.score>(p.best[k]||0);
+  if(isBest) p.best[k]=WR.score; save();
+  const ov=document.createElement('div'); ov.className='overlay';
+  ov.innerHTML=`<div class="card"><h2>Game Over</h2><div class="nums"><div><b>${WR.score}</b><span>${t('score')}</span></div><div><b>${WR.wi}</b><span>Words</span></div></div>${isBest&&WR.score>0?`<span class="badge">${t('newBest')}</span>`:`<span class="badge">${t('best')}: ${p.best[k]||0}</span>`}<div class="btns"><button class="btn primary" data-act="wr" data-enter>${t('playAgain')}</button></div><span class="enter-hint">${t('enterHint')}</span></div>`;
+  $('#wrSky').appendChild(ov);
+  onEscape = showWordRush;
+  if(isBest&&WR.score>0) confetti();
+}
+
+/* ---------- boot ---------- */
+renderChrome();
+go('lessons');
+</script>
+
+</body></html>
