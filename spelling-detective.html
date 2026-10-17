@@ -1,0 +1,1071 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>בלש האיות</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Varela+Round&family=Rubik:wght@400;500;700;800&display=swap">
+<style>
+/* Layout: one app column; home = player card + letter-pair board + three game cards. Each game is a single centered column. */
+:root {
+  --bg: #F3EEE6; --surface: #FFFFFF; --surface-2: #F8F4EE; --ink: #2A2238; --muted: #6B6278; --line: #E2D9CC;
+  --plum: #7A3FD1; --coral: #E8573F; --sun: #F6B323; --teal: #138D84; --good: #1E9154; --bad: #D3333B;
+  --white: #FFFFFF;
+  --u: #E9E2D7; --m1: #F7C8BF; --m2: #FCD989; --m3: #CFE69B; --m4: #84D3A5;
+  --shadow: 0 3px 0 rgba(42,34,56,.12);
+  --display: "Varela Round", "Rubik", system-ui, sans-serif;
+  --body: "Rubik", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #17131F; --surface: #221C2D; --surface-2: #2A2337; --ink: #F1ECF7; --muted: #ABA1BA; --line: #3A3149;
+  --plum: #A983F0; --coral: #FF7A63; --sun: #FFC448; --teal: #36C2B6; --good: #46C985; --bad: #FF6B72;
+  --u: #2F283B; --m1: #6A3036; --m2: #6E561E; --m3: #4A6A2B; --m4: #23785A;
+  --shadow: 0 3px 0 rgba(0,0,0,.4); color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #17131F; --surface: #221C2D; --surface-2: #2A2337; --ink: #F1ECF7; --muted: #ABA1BA; --line: #3A3149;
+  --plum: #A983F0; --coral: #FF7A63; --sun: #FFC448; --teal: #36C2B6; --good: #46C985; --bad: #FF6B72;
+  --u: #2F283B; --m1: #6A3036; --m2: #6E561E; --m3: #4A6A2B; --m4: #23785A;
+  --shadow: 0 3px 0 rgba(0,0,0,.4); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.55 var(--body); }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--plum); outline-offset: 2px; }
+h1, h2, h3, h4 { font-family: var(--display); font-weight: 400; line-height: 1.15; margin: 0; text-wrap: balance; }
+p { margin: 0; }
+[hidden] { display: none !important; }
+
+.app { max-width: 980px; margin: 0 auto; padding-inline: 16px; padding-block: 12px 48px; }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 8px 18px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; font-family: var(--display); font-size: 26px; background: none; border: 0; padding: 0; }
+.brand svg { width: 42px; height: 42px; }
+.top-r { display: flex; gap: 8px; align-items: center; }
+.chip-btn { display: inline-flex; align-items: center; gap: 8px; border: 2px solid var(--line); background: var(--surface); border-radius: 999px; padding-block: 5px; padding-inline: 5px 12px; font-weight: 700; font-size: 14px; }
+.chip-btn.icon { padding: 7px 12px; }
+.av { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; color: var(--white); font-weight: 800; font-size: 15px; flex: none; }
+
+.btn { border: 0; border-radius: 12px; padding: 12px 18px; font-weight: 700; background: var(--ink); color: var(--bg); box-shadow: var(--shadow); }
+.btn:active { transform: translateY(2px); box-shadow: none; }
+.btn.alt { background: var(--surface); color: var(--ink); border: 2px solid var(--line); }
+.btn.accent { background: var(--plum); color: var(--white); }
+.btn.big { padding: 15px 22px; font-size: 18px; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.card { background: var(--surface); border: 2px solid var(--line); border-radius: 16px; padding: 18px; }
+.eyebrow { font-size: 13px; font-weight: 700; color: var(--muted); }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* HOME */
+.home-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 16px; align-items: start; }
+@media (max-width: 820px) { .home-grid { grid-template-columns: minmax(0, 1fr); } }
+.who h2 { font-size: 30px; margin-top: 2px; }
+.lvl-row { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
+.lvl-badge { font-family: var(--display); background: var(--sun); color: #2A1C00; border-radius: 10px; padding: 4px 10px; font-size: 15px; white-space: nowrap; }
+.xpbar { flex: 1; height: 12px; border-radius: 99px; background: var(--surface-2); border: 2px solid var(--line); overflow: hidden; }
+.xpbar i { display: block; height: 100%; background: var(--sun); border-radius: 99px; }
+.xp-note { font-size: 14px; color: var(--muted); margin-top: 6px; }
+.suggest { margin-top: 16px; padding: 14px; border-radius: 12px; background: var(--surface-2); display: grid; gap: 10px; justify-items: start; }
+.suggest strong { font-family: var(--display); font-weight: 400; font-size: 20px; }
+.pl-list { display: grid; gap: 8px; margin-top: 14px; }
+.pl { display: flex; align-items: center; gap: 12px; text-align: start; width: 100%; background: var(--surface-2); border: 2px solid var(--line); border-radius: 12px; padding: 10px 12px; font-weight: 700; font-size: 17px; }
+.pl .av { width: 36px; height: 36px; font-size: 18px; }
+.pl small { margin-inline-start: auto; font-weight: 500; color: var(--muted); font-size: 13px; }
+.add-form { margin-top: 14px; display: grid; gap: 6px; }
+.add-form label { font-weight: 700; font-size: 14px; color: var(--muted); }
+.add-form .row input { flex: 1; min-width: 0; }
+input[type="text"] { font: inherit; padding: 11px 14px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface-2); color: var(--ink); }
+
+.board-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.board-head h3 { font-size: 22px; }
+.pairs { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
+.ptile { display: grid; gap: 6px; justify-items: center; padding: 12px 8px 10px; border-radius: 14px; border: 2px solid var(--line); background: var(--surface-2); transition: transform .12s, border-color .12s; }
+.ptile:hover { transform: translateY(-2px); border-color: var(--ink); }
+.ptile b { font-family: var(--display); font-weight: 400; font-size: 30px; line-height: 1; letter-spacing: .04em; }
+.ptile .bar { width: 100%; height: 8px; border-radius: 99px; background: var(--u); overflow: hidden; }
+.ptile .bar i { display: block; height: 100%; border-radius: 99px; }
+.ptile small { font-size: 12.5px; color: var(--muted); font-weight: 500; }
+
+.section-h { display: flex; align-items: baseline; justify-content: space-between; margin: 28px 0 12px; gap: 10px; flex-wrap: wrap; }
+.section-h h3 { font-size: 24px; }
+.modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 820px) { .modes { grid-template-columns: minmax(0, 1fr); } }
+.mode { text-align: start; background: var(--surface); border: 2px solid var(--line); border-radius: 16px; padding: 16px; display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 4px 14px; align-items: start; box-shadow: var(--shadow); transition: transform .12s, border-color .12s; }
+.mode:hover { transform: translateY(-2px); border-color: var(--ink); }
+.mode .glyph { grid-row: span 2; width: 56px; height: 56px; border-radius: 14px; display: grid; place-items: center; font-family: var(--display); font-size: 26px; color: #2A2238; }
+.mode h4 { font-size: 21px; }
+.mode p { font-size: 14.5px; color: var(--muted); line-height: 1.45; }
+
+/* PLAY (shared) */
+.play { max-width: 600px; margin: 0 auto; display: grid; gap: 14px; }
+.play-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.back { border: 2px solid var(--line); background: var(--surface); border-radius: 10px; padding: 7px 12px; font-weight: 700; font-size: 14px; }
+.hud { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.pill { background: var(--surface); border: 2px solid var(--line); border-radius: 999px; padding: 4px 12px; font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pill.hot { background: var(--sun); border-color: var(--sun); color: #2A1C00; }
+.prompt { text-align: center; color: var(--muted); font-weight: 500; }
+.qcard { background: var(--surface); border: 2px solid var(--line); border-radius: 22px; padding: 26px 18px; text-align: center; box-shadow: var(--shadow); display: grid; gap: 14px; justify-items: center; }
+.qcard.shake { animation: shake .4s; }
+@keyframes shake { 20% { transform: translateX(-10px); } 40% { transform: translateX(9px); } 60% { transform: translateX(-6px); } 80% { transform: translateX(4px); } }
+.clue { font-size: 18px; color: var(--muted); max-width: 30ch; }
+.clue .blank { display: inline-block; min-width: 3.5em; border-bottom: 3px dotted var(--muted); }
+.word { font: 400 clamp(48px, 13vw, 76px)/1.15 var(--display); }
+.slot { display: inline-block; min-width: .9em; padding-inline: .06em; border-radius: 12px; border: 3px dashed var(--plum); color: var(--plum); line-height: 1.1; }
+.slot.ok { border-style: solid; border-color: var(--good); color: var(--good); }
+.slot.no { border-style: solid; border-color: var(--bad); color: var(--bad); }
+.choices { display: grid; grid-template-columns: repeat(var(--n, 2), minmax(0, 1fr)); gap: 12px; }
+.choice { height: 96px; border-radius: 18px; border: 2px solid var(--line); background: var(--surface); font: 400 48px var(--display); box-shadow: var(--shadow); }
+.choice:hover { border-color: var(--ink); }
+.choice:active { transform: translateY(2px); box-shadow: none; }
+.choice .k { display: block; font: 700 12px var(--body); color: var(--muted); margin-top: -6px; }
+.choice.ok { background: var(--good); border-color: var(--good); color: var(--white); }
+.choice.no { background: var(--bad); border-color: var(--bad); color: var(--white); }
+.keys-hint { text-align: center; color: var(--muted); font-size: 13px; }
+
+.feedback { border-radius: 18px; padding: 16px; display: grid; gap: 10px; background: var(--surface); border: 3px solid var(--coral); }
+.feedback .big { font: 400 30px var(--display); }
+.feedback .big em { font-style: normal; color: var(--good); }
+.feedback .tip { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; font-size: 16px; }
+.feedback.good { border-color: var(--good); }
+
+/* find the mistake */
+.sentence { display: flex; flex-wrap: wrap; gap: 8px 6px; justify-content: center; font: 400 clamp(26px, 6.5vw, 36px)/1.3 var(--display); }
+.tok { border: 2px solid transparent; background: var(--surface-2); border-radius: 12px; padding: 4px 10px; font: inherit; }
+.tok:hover { border-color: var(--ink); }
+.tok.miss { border-color: var(--bad); animation: shake .4s; }
+.tok.target { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 14%, var(--surface)); }
+.tok.fixed { border-color: var(--good); background: color-mix(in srgb, var(--good) 16%, var(--surface)); color: var(--good); }
+.tok:disabled { cursor: default; }
+.wrong-letter { color: var(--bad); text-decoration: underline wavy var(--bad); text-underline-offset: 6px; }
+.right-letter { color: var(--good); }
+
+/* root families */
+.families { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.fam { border: 2px solid var(--line); background: var(--surface); border-radius: 18px; padding: 14px 10px; display: grid; gap: 2px; justify-items: center; box-shadow: var(--shadow); }
+.fam:hover { border-color: var(--ink); }
+.fam b { font: 400 34px var(--display); letter-spacing: .02em; }
+.fam small { color: var(--muted); font-size: 15px; }
+.fam.ok { border-color: var(--good); background: color-mix(in srgb, var(--good) 14%, var(--surface)); }
+.fam.no { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, var(--surface)); }
+
+/* results */
+.results { max-width: 560px; margin: 0 auto; display: grid; gap: 16px; text-align: center; }
+.results h2 { font-size: clamp(34px, 8vw, 48px); }
+.results .sub { color: var(--muted); font-size: 18px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; }
+.stat { background: var(--surface); border: 2px solid var(--line); border-radius: 14px; padding: 12px; }
+.stat b { display: block; font: 400 30px var(--display); font-variant-numeric: tabular-nums; }
+.stat span { font-size: 13px; font-weight: 700; color: var(--muted); }
+.missed { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 10px; }
+.missed span { background: var(--surface); border: 2px solid var(--coral); border-radius: 10px; padding: 4px 12px; font: 400 22px var(--display); }
+.res-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+/* sheet */
+.scrim { position: fixed; inset: 0; background: rgba(20,12,30,.55); display: grid; place-items: end center; z-index: 20; padding: 16px; }
+@media (min-width: 640px) { .scrim { place-items: center; } }
+.sheet { width: min(560px, 100%); max-height: calc(100% - 20px); overflow-y: auto; background: var(--surface); border-radius: 20px; padding: 20px; display: grid; gap: 18px; border: 2px solid var(--line); }
+.sheet h3 { font-size: 26px; }
+.grp { display: grid; gap: 8px; }
+.lab { font-weight: 700; font-size: 14px; color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.tchip { min-width: 64px; height: 46px; padding: 0 12px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface-2); font: 400 22px var(--display); }
+.tchip.sm { height: 36px; min-width: auto; font: 700 14px var(--body); }
+.tchip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+
+.toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 12px; font-weight: 700; z-index: 40; max-width: calc(100% - 32px); text-align: center; }
+#confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 30; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <button class="brand" data-action="home" aria-label="בלש האיות, מסך הבית">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="20" cy="20" r="13" fill="var(--sun)" stroke="var(--ink)" stroke-width="3.5"/><circle cx="16" cy="16" r="4" fill="#fff" opacity=".7"/><path d="M30 30l11 11" stroke="var(--ink)" stroke-width="6" stroke-linecap="round"/></svg>
+      בלש האיות
+    </button>
+    <div class="top-r">
+      <button class="chip-btn icon" id="sound-btn" data-action="sound"></button>
+      <button class="chip-btn" id="player-chip" data-action="switch" hidden></button>
+    </div>
+  </header>
+
+  <main>
+    <section id="s-home">
+      <div class="home-grid">
+        <div class="card who" id="who"></div>
+        <div class="card">
+          <div class="board-head"><h3>האותיות המבלבלות</h3><span class="eyebrow">לחיצה על זוג מתחילה תרגול שלו</span></div>
+          <div class="pairs" id="board"></div>
+        </div>
+      </div>
+      <div class="section-h"><h3>בחירת משחק</h3></div>
+      <div class="modes" id="modes"></div>
+    </section>
+
+    <section id="s-pick" hidden>
+      <div class="play">
+        <div class="play-top"><button class="back" data-action="home">✕ יציאה</button><div class="hud" id="pick-hud"></div></div>
+        <p class="prompt">איזו אות חסרה?</p>
+        <div class="qcard" id="pick-card"></div>
+        <div class="choices" id="pick-choices"></div>
+        <div class="feedback" id="pick-fb" hidden></div>
+        <p class="keys-hint">אפשר גם להקיש 1 או 2, או את האות עצמה במקלדת.</p>
+      </div>
+    </section>
+
+    <section id="s-find" hidden>
+      <div class="play">
+        <div class="play-top"><button class="back" data-action="home">✕ יציאה</button><div class="hud" id="find-hud"></div></div>
+        <p class="prompt" id="find-prompt"></p>
+        <div class="qcard" id="find-card"></div>
+        <div id="find-extra"></div>
+        <div class="feedback" id="find-fb" hidden></div>
+      </div>
+    </section>
+
+    <section id="s-root" hidden>
+      <div class="play">
+        <div class="play-top"><button class="back" data-action="home">✕ יציאה</button><div class="hud" id="root-hud"></div></div>
+        <p class="prompt">לאיזו משפחה המילה שייכת? השורש מגלה איך כותבים.</p>
+        <div class="qcard" id="root-card"></div>
+        <div class="families" id="root-fams"></div>
+        <div class="feedback" id="root-fb" hidden></div>
+        <p class="keys-hint">אפשר גם להקיש 1 או 2 במקלדת.</p>
+      </div>
+    </section>
+
+    <section id="s-results" hidden><div class="results" id="results"></div></section>
+  </main>
+</div>
+
+<div class="scrim" id="scrim" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<canvas id="confetti"></canvas>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rand = n => Math.floor(Math.random() * n);
+const pick = a => a[rand(a.length)];
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rand(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- letters ---------- */
+const FINAL = { 'כ': 'ך', 'מ': 'ם', 'נ': 'ן', 'פ': 'ף', 'צ': 'ץ' };
+const BASE = { 'ך': 'כ', 'ם': 'מ', 'ן': 'נ', 'ף': 'פ', 'ץ': 'צ' };
+const base = c => BASE[c] || c;
+const finalize = c => FINAL[c] || c;
+const HEB = /[א-ת]/;
+const bare = w => w.replace(/[^א-ת]/g, '');
+
+/* ---------- content ----------
+   Word lists: "_" marks the tricky letter (the decoy is the other letter of the pair).
+   "{correct/decoy}" spells both out, e.g. {וו/ב}. "|" adds a clue sentence where "___" stands for the word —
+   used whenever swapping the letter makes another real word (חבר / כבר). Full spelling (כתיב מלא) throughout. */
+const PAIRS = [
+  { id: 'אע', l: ['א', 'ע'], label: 'א / ע',
+    tip: 'א ו־ע נשמעות כמעט אותו דבר. הדרך הכי טובה: לחשוב על מילה מאותה משפחה שכבר יודעים לכתוב. למשל: עוגה ← עוגייה, אוכל ← לאכול.',
+    words: `_עכבר
+_עוגה
+_ענן
+_עיפרון
+_עגבנייה
+_עיתון
+_עולם|רוצים לטייל מסביב ל___.
+_עיר
+צב_ע|בחרנו ___ כחול לקיר החדר.
+שבו_ע
+ש_עון|ה___ על הקיר מראה שתיים.
+ארב_ע
+מ_עיל
+ט_עים
+נ_עליים
+ת_עודה
+מד_ע
+ר_עש|יש ___ חזק מהכביש ואי אפשר להירדם.
+_עין|קיבלתי מכה ב___ והיא אדומה.
+_עט|כתבתי את התשובה ב___ כחול.
+_עבודה|אמא חוזרת מה___ בשש בערב.
+_אריה
+_אוזן
+_אוטובוס
+_ארנב
+_אגס
+_ארון
+_אבטיח
+_אוכל
+_אחות
+_אורז
+_אופניים
+_אמבטיה
+_אצבע
+ש_אלה
+כ_אב
+ת_אריך|מה ה___ היום?
+ר_אש|שמתי כובע על ה___ כי קר בחוץ.
+_אש|ישבנו מול ה___ של המדורה.` },
+  { id: 'חכ', l: ['ח', 'כ'], label: 'ח / כ',
+    tip: 'כ בלי דגש נשמעת בדיוק כמו ח. בסוף מילה זו ך סופית או ח. מילה מאותה משפחה עוזרת: מלך ← מלכה, ארוך ← ארוכה.',
+    words: `_חתול
+_חלון
+_חדר
+_חורף
+_חול|בנינו ארמון ב___ על שפת הים.
+שול_חן
+מ_חברת
+ארו_חה|אכלנו ___ טעימה בערב.
+ל_חם|קניתי ___ טרי במאפייה.
+יר_ח|בלילה ה___ מאיר בשמיים.
+תפו_ח
+פר_ח
+מפת_ח
+מטב_ח
+שמ_ח|הילד ___ כי קיבל מתנה.
+רו_ח|ה___ נושבת חזק היום.
+_חבר|יש לי ___ טוב בכיתה.
+ש_חור|החתול ה___ ישן על הספה.
+_חג
+_חיה
+_חלום
+_חכם
+מ_כתב
+מ_כונית
+תו_כנית
+או_כל
+דר_ך
+מל_ך|ה___ חבש כתר זהב.
+ארו_ך
+הול_ך
+שו_כב
+כו_כב
+בר_כה|כתבנו ___ ליום ההולדת של סבא.
+לכלו_ך
+חיו_ך
+מ_כנסיים
+ש_כן
+ע_כשיו
+ת_כלת` },
+  { id: 'הא', l: ['ה', 'א'], label: 'ה / א',
+    tip: 'בסוף מילה ה ו־א לא נשמעות בכלל. רוב המילים בנקבה נגמרות ב־ה (ילדה, שמלה, עוגה). כדאי לזכור את המילים שנגמרות ב־א: אבא, אמא, סבא, סבתא, רופא, דשא.',
+    words: `שמל_ה
+ילד_ה
+עוג_ה
+בננ_ה
+מיט_ה
+כית_ה
+מתנ_ה
+תמונ_ה
+משפח_ה
+ארוח_ה
+שמח_ה
+אהב_ה
+מכונ_ה
+קופס_ה
+שאל_ה
+אב_א
+אמ_א
+סב_א
+סבת_א
+רופ_א
+דש_א
+פל_א
+יצ_א
+הב_א|נתראה בשבוע ה___.
+ברי_א|ירקות ופירות שומרים על גוף ___.` },
+  { id: 'טת', l: ['ט', 'ת'], label: 'ט / ת',
+    tip: 'ט ו־ת נשמעות אותו דבר. מילים שנגמרות ב־ת (מחברת, רכבת, מקלדת) כמעט תמיד עם ת. והמשפחה עוזרת: טעים ← טעם, מטבח ← טבח.',
+    words: `_טלפון
+_טיול
+_טוב
+מ_טבח
+מי_טה
+ש_טיח
+ק_טן
+ח_טיף
+_טעים
+מ_טוס
+מ_טרייה
+_טלוויזיה
+_טבע|יצאנו לטייל ב___.
+_טירה
+_טייס
+_טיפה
+_טוסט
+_טרקטור
+פ_טיש
+ש_טויות
+בי_טחון
+ע_ט|כתבתי ב___ כחול.
+_תפוח
+_תיק|שמתי את הספרים ב___.
+_תלמיד
+כי_תה
+בי_ת
+שב_ת
+מ_תנה
+_תרנגול
+_תות
+_תמונה
+_תינוק
+_תחנה
+מחבר_ת
+מקלד_ת
+רכב_ת
+כ_תום
+_תשובה
+ש_תיים
+_תמיד
+מכ_תב` },
+  { id: 'קכ', l: ['ק', 'כ'], label: 'ק / כ',
+    tip: 'ק ו־כּ (עם דגש) נשמעות אותו דבר. בתחילת מילה כ תמיד נשמעת כמו ק, אז צריך לזכור: כלב, כדור, כובע עם כ; קיר, קפה, קוף עם ק.',
+    words: `_קפה
+_קיר
+_קופסה
+_קטן
+_קשת
+מ_קלדת
+מ_קרר
+_קיץ
+_קפיצה
+_קוף
+_קבוצה
+_קיוסק
+ש_קית
+מ_קום
+ת_קרה
+_קערה
+_קצר
+_קמח
+_קן|הציפור בנתה ___ על העץ.
+_כלב
+_כדור
+_כיסא
+_כובע
+_כתום
+_כחול
+_כפית
+_כרטיס
+_כסף
+_כביש
+_כיור
+_כוס
+_כוכב
+_כיתה
+_כתף
+_כנף
+_כפפה
+_כרית
+_כוח
+ר_כבת
+ס_כין
+סו_כה` },
+  { id: 'סש', l: ['ס', 'ש'], label: 'ס / שׂ',
+    tip: 'שׂ (שין שמאלית, הנקודה משמאל) נשמעת כמו ס. משפחת המילה עוזרת: שמח ← שמחה, שמלה ← שמלות. כדאי לזכור: שמאל, שקית, ישראל עם ש.',
+    words: `_שמלה
+_שמח
+_שמאל
+_שקית
+ע_שר
+_שדה
+מ_שחק
+_שרוך
+י_שראל
+_שיחה
+נ_שיא
+_שיער
+_שק
+מ_שאית
+ע_שב
+_שמיכה|התכסיתי ב___ חמה.
+_שפה|עברית היא ___ יפה.
+_סבון
+_סוס
+_סבתא
+_סלע
+_סוודר
+מטו_ס
+אוטובו_ס
+_סנדל
+_ספורט
+_סגול
+_סתיו
+כי_סא
+_סבא
+מ_ספריים
+_סיר|בישלנו מרק ב___ גדול.
+_סל|שמתי את התפוחים ב___.
+_סיפור|סבתא קראה לנו ___ לפני השינה.
+_סלט|אכלתי ___ ירקות.` },
+  { id: 'בו', l: ['ב', 'ו'], label: 'ב / ו',
+    tip: 'ב בלי דגש נשמעת כמו ו. בכתיב מלא, ו שנשמעת באמצע מילה נכתבת פעמיים: סוודר, תקווה, מצווה. בתחילת מילה ו נשארת אחת: ורד, ורוד, וילון.',
+    words: `זא_ב
+כוכ_ב
+רחו_ב
+ג_בינה
+צ_בע
+ש_בור
+כת_ב
+מכת_ב
+ח_בר|יש לי ___ טוב בכיתה.
+י_בש
+ש_ביל
+ת_בלין
+עכ_ביש
+ט_בע
+א_ביב|ב___ פורחים הפרחים.
+ת_בנית
+_ורד|קטפתי ___ אדום מהגינה.
+_ורוד
+_וילון
+_ויטמין
+ס{וו/ב}דר
+תק{וו/ב}ה
+מצ{וו/ב}ה
+ט{וו/ב}ס
+ל{וו/ב}ייתן
+ח{וו/ב}יה
+סתי_ו` }
+];
+
+/* Find-the-mistake sentences: every {correct/decoy} is a spot where the game may plant the error. */
+const SENTENCES = `ה{ח/כ}תול השחור ישן ליד ה{ח/כ}לון.
+סבת{א/ה} אפתה {ע/א}וגה {ט/ת}עימה לשב{ת/ט}.
+ב{ק/כ}יץ אנחנו נוסעים ל{ח/כ}וף הים.
+שכחתי את ה{ע/א}יפרון ב{ת/ט}יק.
+ה{כ/ק}לב {ש/ס}מח {כ/ק}שאנחנו חוזרים הבי{ת/ט}ה.
+{א/ע}כלנו ארוחת {ע/א}רב עם כל המשפח{ה/א}.
+המורה ביקש{ה/א} להביא מחבר{ת/ט} חדשה.
+{ק/כ}ניתי ל{ח/כ}ם ו{ח/כ}לב במ{כ/ק}ולת.
+ה{ט/ת}לפון צלצל באמצע השי{ע/א}ור.
+הרו{ח/כ} ה{ק/כ}רה נשבה כל הלילה.
+{ש/ס}מתי את ה{ס/ש}פרים על המדף.
+ה{א/ע}וטובוס איחר ב{ע/א}שר דקות.
+דני {א/ע}והב לשחק {כ/ק}דורגל בהפס{ק/כ}ה.
+{ט/ת}יילנו ב{ט/ת}בע וראינו צבי ו{א/ע}רנב.
+ב{ח/כ}ורף צריך מ{ע/א}יל ו{כ/ק}ובע חם.
+ה{ת/ט}ינוק {ח/כ}ייך כשראה את {א/ע}מא.
+ה{ש/ס}מלה ה{כ/ק}חולה תלויה ב{א/ע}רון.
+הדגל של י{ש/ס}ראל {כ/ק}חול ולבן.
+{ס/ש}בתא שלי {ס/ש}יפרה לנו {ס/ש}יפור מצחיק.
+{ו/ב}רד {א/ע}דום פרח בגינה.
+ה{ע/א}כביש {ט/ת}ווה רשת בפינת ה{ח/כ}דר.
+שתי{ת/ט}י {כ/ק}וס מים {ק/כ}רים.
+המ{ט/ת}וס {ט/ת}ס מעל ה{ע/א}ננים.
+{ח/כ}יכינו לר{כ/ק}בת ב{ת/ט}חנה.
+{ק/כ}יבלתי מ{ת/ט}נה ליום ההולד{ת/ט}.
+השמש זור{ח/כ}ת והשמיים {כ/ק}חולים.
+{א/ע}חי ה{ק/כ}טן שובר {כ/ק}ל צ{ע/א}צוע.
+ב{ע/א}רב {א/ע}נחנו {ק/כ}וראים {ס/ש}פר.
+{ס/ש}בא נט{ע/א} {ע/א}ץ {ת/ט}פוחים בחצר.
+ה{ט/ת}לוויזיה {ק/כ}ולנית מדי.
+{ש/ס}מתי {ש/ס}מיכה {ח/כ}מה על המי{ט/ת}ה.
+ה{ק/כ}וף {ק/כ}פץ מ{ע/א}ץ ל{ע/א}ץ.
+השוטר {ע/א}זר לילד{ה/א} ל{ח/כ}צות {א/ע}ת ה{כ/ק}ביש.
+{כ/ק}תבנו מ{כ/ח}תב ל{ס/ש}בתא.
+ה{א/ע}ופניים שלי {ח/כ}דשות.
+{ת/ט}מיד {כ/ק}דאי לש{ט/ת}וף ידיים לפני ה{א/ע}וכל.
+ב{ס/ש}לט יש {ע/א}גבנייה, מלפפון ו{ח/כ}סה.
+המורה {ס/ש}ידרה את ה{כ/ק}יסאות ב{כ/ק}יתה.
+ה{ע/א}כבר בר{ח/כ} מה{ח/כ}תול.
+ה{ש/ס}יער שלה {א/ע}רוך מ{א/ע}וד.
+מ{ח/כ}ר נל{כ/ח} ל{ט/ת}יול שנתי.
+{ע/א}כשיו {ת/ט}ורי ל{ש/ס}חק.
+{ו/ב}ילון {ו/ב}רוד תלוי על ה{ח/כ}לון.
+{א/ע}כלנו ג{ב/ו}ינה {ע/א}ם ל{ח/כ}ם.
+ב{א/ע}ביב {כ/ק}ל ה{ע/א}צים פורחים.
+ה{ס/ש}וודר ה{ו/ב}רוד {ח/כ}ם מאוד.
+ה{ת/ט}רנגול מ{ע/א}יר את {כ/ק}ולם {כ/ק}ל בוקר.
+{ש/ס}מנו את ה{ש/ס}קית ב{ס/ש}ל.
+מ{ע/א}ל ה{ע/א}יר יש {ק/כ}שת צבעונית.
+ה{ח/כ}בר שלי {ק/כ}ופץ הכי רחוק.`;
+
+/* Root families: two roots that differ only in a sound-alike letter. "_" marks that letter in each word. */
+const FAMILIES = [
+  { pair: 'אע', a: { root: 'ע־ב־ד', hint: 'לעבוד', words: `_עבודה|אמא יוצאת ל___ בשבע בבוקר.
+_עובד|הוא ___ בחנות ספרים.
+מ_עבדה|המדענית עורכת ניסויים ב___.
+_עבדנו|___ קשה כל היום בגינה.` },
+    b: { root: 'א־ב־ד', hint: 'לאבד', words: `_איבדתי|___ את המפתח, והוא לא נמצא בשום מקום.
+_אבוד|הכלב ___ ולא יודע איך לחזור הביתה.
+_אבידה|מצאנו ___ ברחוב והחזרנו אותה לבעלים.
+_אובדן|___ של חפץ אהוב יכול להעציב.` } },
+  { pair: 'אע', a: { root: 'ע־ש־ר', hint: 'עשר · עשיר', words: `_עשיר|המלך היה ___ מאוד וגר בארמון.
+_עושר|כל ה___ של המלך היה שמור בתיבה.
+_עשירי|הוא הגיע למקום ה___ במרוץ.
+_עשרה|יש ___ ילדים בקבוצה.` },
+    b: { root: 'א־ש־ר', hint: 'אושר · לאשר', words: `_אושר|החתונה הייתה מלאה ב___ ושמחה.
+מ_אושר|הכלב ___ כשאנחנו חוזרים הביתה.
+_אישור|צריך ___ מההורים כדי לצאת לטיול.
+ל_אשר|המנהלת צריכה ___ את הטיול.` } },
+  { pair: 'אע', a: { root: 'ע־ר־ך', hint: 'לערוך', words: `_עורך|___ העיתון בוחר אילו כתבות יתפרסמו.
+מ_ערכת|___ השעות שלנו מלאה בשיעורים.
+ל_ערוך|עזרנו ___ את השולחן לארוחת החג.
+_ערך|למטבע העתיק יש ___ רב.` },
+    b: { root: 'א־ר־ך', hint: 'ארוך', words: `_ארוך|הנהר הזה ___ מאוד.
+_אורך|מה ה___ של השולחן?
+לה_אריך|אפשר ___ את ההפסקה בעוד חמש דקות?
+_ארוכה|חיכינו בשורה ___ בקופה.` } },
+  { pair: 'טת', a: { root: 'ט־ב־ע', hint: 'טבע · טבעת', words: `_טבע|יצאנו לטייל ב___.
+_טבעת|על האצבע שלה יש ___ זהב.
+מ_טבע|מצאתי ___ של עשרה שקלים.
+_טבעי|המיץ ___, בלי תוספת סוכר.` },
+    b: { root: 'ת־ב־ע', hint: 'לתבוע', words: `_תביעה|השכן הגיש ___ לבית המשפט.
+ל_תבוע|הוא החליט ___ את החברה בבית המשפט.
+_תובע|ה___ דיבר מול השופטת.
+_תבע|הלקוח ___ את הכסף שלו בחזרה.` } },
+  { pair: 'סש', a: { root: 'שׂ־ע־ר', hint: 'שיער', words: `_שיער|יש לה ___ ארוך ומתולתל.
+_שערה|מצאתי ___ במרק!
+_שעיר|הכלב ה___ צריך תספורת.` },
+    b: { root: 'ס־ע־ר', hint: 'סערה', words: `_סערה|הייתה ___ חזקה עם רעמים וברקים.
+_סוער|הים ___ היום, אסור לשחות.
+_סוערת|המסיבה הייתה ___ ורועשת.` } },
+  { pair: 'קכ', a: { root: 'ק־ש־ר', hint: 'לקשור', words: `_קשר|יש ___ חזק בין האחים.
+ל_קשור|צריך ___ את השרוכים לפני הריצה.
+_קשור|הכלב ___ לעמוד בחוץ.
+הת_קשרתי|___ לסבתא ליום ההולדת שלה.` },
+    b: { root: 'כ־ש־ר', hint: 'כושר', words: `_כושר|בשיעור ___ גופני רצנו מסביב למגרש.
+מו_כשר|הוא צייר ___ מאוד.
+_כשר|האוכל במסעדה הזאת ___.
+ה_כשרה|הטייסים עוברים ___ ארוכה.` } },
+  { pair: 'חכ', a: { root: 'ב־ר־ך', hint: 'ברכה', words: `בר_כה|כתבנו ___ ליום ההולדת של סבא.
+בר_ך|נפלתי וקיבלתי מכה ב___.
+מבר_ך|סבא ___ על היין בשבת.
+בר_כות|שלחנו ___ לחג לכל המשפחה.` },
+    b: { root: 'ב־ר־ח', hint: 'לברוח', words: `ברי_חה|ה___ מהכלא לא הצליחה.
+בר_ח|החתול ___ מהכלב.
+בור_ח|הגנב ___ מהשוטר.` } },
+  { pair: 'חכ', a: { root: 'מ־ל־ך', hint: 'מלך', words: `מל_כה|ה___ ישבה על הכס.
+ממל_כה|פעם, ב___ רחוקה, גרה נסיכה.
+מל_ך|ה___ חבש כתר.
+למלו_ך|הנסיך יתחיל ___ בשנה הבאה.` },
+    b: { root: 'מ־ל־ח', hint: 'מלח', words: `מל_ח|צריך להוסיף קצת ___ למרק.
+מלו_חים|מי הים ___.
+מל_חייה|על השולחן יש ___ ופלפלייה.` } }
+];
+
+/* ---------- parsing ---------- */
+const pairById = id => PAIRS.find(p => p.id === id);
+const pairOf = (c, d) => PAIRS.find(p => p.l.includes(base(c[0])) && p.l.includes(base(d[0])));
+// "_X" or "{c/d}" → { pre, c, d, post, word }. Letters at the end of the word switch to their final form.
+function parseMarked(src, other) {
+  const m = src.match(/_(.)|\{([^/}]+)\/([^}]+)\}/);
+  let c = m[1] ? base(m[1]) : m[2], d = m[1] ? other(base(m[1])) : m[3];
+  const pre = src.slice(0, m.index), post = src.slice(m.index + m[0].length);
+  if (!HEB.test(post)) { c = finalize(c); d = finalize(d); }
+  return { pre, c, d, post, word: pre + c + post };
+}
+function parseList(text, other) {
+  return text.split('\n').map(s => s.trim()).filter(Boolean).map(line => {
+    const [w, clue] = line.split('|');
+    return { ...parseMarked(w, other), clue: clue || '' };
+  });
+}
+PAIRS.forEach(p => { p.entries = parseList(p.words, c => p.l.find(x => x !== c)).map(e => ({ ...e, pair: p.id })); });
+const SENT = SENTENCES.split('\n').map(s => s.trim()).filter(Boolean).map(line => line.split(' ').map(tok => {
+  if (!/[_{]/.test(tok)) return { text: tok };
+  const e = parseMarked(tok, null);
+  const p = pairOf(e.c, e.d);
+  return { ...e, pair: p.id, text: e.word };
+}));
+FAMILIES.forEach(f => {
+  const la = f.a.words.match(/_(.)/)[1], lb = f.b.words.match(/_(.)/)[1];
+  f.a.entries = parseList(f.a.words, () => lb);
+  f.b.entries = parseList(f.b.words, () => la);
+});
+
+/* ---------- storage ---------- */
+const KEY = 'spell-detective-v1';
+const AV_COLORS = ['var(--plum)', 'var(--coral)', 'var(--teal)', 'var(--sun)'];
+let DB;
+try { DB = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { DB = null; }
+DB = DB || { players: {}, order: [], current: null, sound: true };
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch (e) {} };
+const P = () => DB.players[DB.current] || null;
+const newPlayer = name => ({ name, color: AV_COLORS[DB.order.length % AV_COLORS.length], w: {}, xp: 0, lastPairs: PAIRS.map(p => p.id) });
+
+/* ---------- mastery ---------- */
+const wkey = (pair, word) => pair + ':' + bare(word);
+const lvl = (p, pair, word) => { const r = p && p.w[wkey(pair, word)]; return r ? r.l : -1; };
+function record(pair, word, ok) {
+  const p = P(); if (!p) return;
+  const k = wkey(pair, word);
+  const r = p.w[k] || (p.w[k] = { l: 0, c: 0, x: 0 });
+  if (ok) { r.c++; r.l = Math.min(5, r.l + 1); p.xp += 10; } else { r.x++; r.l = Math.max(0, r.l - 2); }
+  save();
+}
+// 0..100, or -1 when nothing in the pair has been tried yet
+function pairPct(p, pair) {
+  const es = pairById(pair).entries;
+  if (!es.some(e => lvl(p, pair, e.word) >= 0)) return -1;
+  return Math.round(es.reduce((s, e) => s + Math.max(0, lvl(p, pair, e.word)), 0) / (es.length * 5) * 100);
+}
+const STAGES = [[-1, 'עוד לא נוסה', 'var(--u)'], [30, 'בהתחלה', 'var(--m1)'], [60, 'בדרך', 'var(--m2)'], [85, 'כמעט', 'var(--m3)'], [101, 'חזק', 'var(--m4)']];
+const stageOf = pct => pct < 0 ? STAGES[0] : STAGES.slice(1).find(s => pct < s[0]);
+function weakestPair(p) { return PAIRS.map(x => x.id).sort((a, b) => pairPct(p, a) - pairPct(p, b))[0]; }
+const lvlOf = xp => 1 + Math.floor(Math.sqrt(xp / 60));
+const xpFor = l => 60 * (l - 1) * (l - 1);
+// weighted sample without replacement: new and weak words come up more
+function sample(items, n, weight) {
+  const pool = items.map(it => ({ it, w: weight(it) })), out = [];
+  while (out.length < n && pool.length) {
+    let r = Math.random() * pool.reduce((s, x) => s + x.w, 0), i = 0;
+    for (; i < pool.length - 1; i++) { r -= pool[i].w; if (r <= 0) break; }
+    out.push(pool.splice(i, 1)[0].it);
+  }
+  return out;
+}
+const wordWeight = (p, pair, word) => { const l = lvl(p, pair, word); return l < 0 ? 4 : 6 - l; };
+
+/* ---------- sound & effects ---------- */
+let AC = null;
+function beep(f, d = .12, type = 'sine', vol = .08, delay = 0) {
+  if (!DB.sound) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const t = AC.currentTime + delay, o = AC.createOscillator(), g = AC.createGain();
+    o.type = type; o.frequency.value = f;
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+    o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t + d + .03);
+  } catch (e) {}
+}
+const SFX = {
+  ok() { beep(660, .09); beep(990, .14, 'sine', .07, .07); },
+  bad() { beep(190, .25, 'square', .035); },
+  win() { [523, 659, 784, 1047].forEach((f, i) => beep(f, .2, 'triangle', .08, i * .11)); }
+};
+let toastT;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 2600); }
+function confetti() {
+  if (reduced()) return;
+  const c = $('#confetti'), x = c.getContext('2d'), dpr = window.devicePixelRatio || 1;
+  c.width = innerWidth * dpr; c.height = innerHeight * dpr; x.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const cs = getComputedStyle(document.documentElement);
+  const cols = ['--coral', '--sun', '--teal', '--plum'].map(v => cs.getPropertyValue(v).trim());
+  const parts = Array.from({ length: 130 }, () => ({ x: innerWidth / 2 + (Math.random() - .5) * 120, y: innerHeight * .35, vx: (Math.random() - .5) * 12, vy: -Math.random() * 12 - 4, r: Math.random() * 6.3, vr: (Math.random() - .5) * .3, w: 6 + Math.random() * 6, h: 8 + Math.random() * 8, c: pick(cols) }));
+  const t0 = performance.now();
+  (function f(now) {
+    x.clearRect(0, 0, innerWidth, innerHeight);
+    for (const p of parts) { p.vy += .32; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.r += p.vr; x.save(); x.translate(p.x, p.y); x.rotate(p.r); x.fillStyle = p.c; x.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); x.restore(); }
+    if (now - t0 < 2600) requestAnimationFrame(f); else x.clearRect(0, 0, innerWidth, innerHeight);
+  })(t0);
+}
+
+/* ---------- screens ---------- */
+const SCREENS = ['home', 'pick', 'find', 'root', 'results'];
+function show(name) { SCREENS.forEach(s => { $('#s-' + s).hidden = s !== name; }); window.scrollTo(0, 0); }
+const MODES = [
+  { id: 'pick', glyph: 'א?', bg: 'var(--m2)', name: 'איזו אות?', desc: 'מילה עם אות חסרה. לבחור את האות הנכונה מבין שתי אותיות שנשמעות אותו דבר.' },
+  { id: 'find', glyph: '🔍', bg: 'var(--m4)', name: 'למצוא את הטעות', desc: 'במשפט מסתתרת טעות כתיב, ולפעמים אין בכלל. למצוא אותה ולתקן.' },
+  { id: 'root', glyph: 'שׁ־ר', bg: 'var(--m1)', name: 'משפחות מילים', desc: 'כל מילה שייכת למשפחה (שורש). השורש מגלה איזו אות כותבים.' }
+];
+const praise = () => pick(['יופי!', 'מצוין!', 'בול!', 'נכון!', 'כל הכבוד!']);
+
+/* ---------- HOME ---------- */
+let pickerOpen = false;
+function renderHeader() {
+  $('#sound-btn').textContent = DB.sound ? 'צליל פועל' : 'צליל כבוי';
+  $('#sound-btn').setAttribute('aria-pressed', DB.sound);
+  const p = P(), chip = $('#player-chip');
+  if (p) { chip.hidden = false; chip.innerHTML = `<span class="av" style="background:${p.color}">${esc(p.name[0])}</span>${esc(p.name)}`; }
+  else chip.hidden = true;
+}
+function renderHome() {
+  renderHeader();
+  const p = P(), who = $('#who');
+  if (!p || pickerOpen) {
+    const list = DB.order.map(id => { const q = DB.players[id]; return `<button class="pl" data-action="pick-player" data-id="${id}"><span class="av" style="background:${q.color}">${esc(q.name[0])}</span>${esc(q.name)}<small>שלב ${lvlOf(q.xp)}</small></button>`; }).join('');
+    who.innerHTML = `<span class="eyebrow">פרופיל</span><h2>מי בתרגול?</h2>
+      ${list ? `<div class="pl-list">${list}</div>` : `<p style="margin-top:10px;color:var(--muted)">לכל שם יש התקדמות משלו. אפשר להוסיף שם לכל אחד ואחת.</p>`}
+      <form class="add-form" id="add-form"><label for="new-name">${list ? 'הוספת שם נוסף' : 'שם'}</label>
+      <div class="row"><input type="text" id="new-name" maxlength="16" placeholder="הקלדת שם" autocomplete="off"><button class="btn accent" type="submit">הוספה</button></div></form>`;
+  } else {
+    const L = lvlOf(p.xp), lo = xpFor(L), hi = xpFor(L + 1), wp = pairById(weakestPair(p));
+    who.innerHTML = `<span class="eyebrow">פרופיל</span><h2>שלום, ${esc(p.name)}</h2>
+      <div class="lvl-row"><span class="lvl-badge">שלב ${L}</span><div class="xpbar"><i style="width:${Math.round((p.xp - lo) / (hi - lo) * 100)}%"></i></div></div>
+      <p class="xp-note">${p.xp} נקודות · עוד ${hi - p.xp} לשלב ${L + 1}</p>
+      <div class="suggest"><span class="eyebrow">המיקוד להיום</span><strong>הזוג ${wp.label} צריך הכי הרבה תרגול</strong>
+      <button class="btn accent" data-action="pair" data-pair="${wp.id}">לתרגל את ${wp.label}</button></div>`;
+  }
+  $('#board').innerHTML = PAIRS.map(pr => {
+    const pct = pairPct(p, pr.id), [, label, color] = stageOf(pct);
+    return `<button class="ptile" data-action="pair" data-pair="${pr.id}" aria-label="לתרגל את ${pr.label}, ${label}"><b>${pr.label}</b><span class="bar"><i style="width:${Math.max(pct, 0)}%;background:${color === 'var(--u)' ? 'transparent' : color}"></i></span><small>${label}${pct > 0 ? ` · ${pct}%` : ''}</small></button>`;
+  }).join('');
+  $('#modes').innerHTML = MODES.map(m => `<button class="mode" data-action="mode" data-mode="${m.id}"><span class="glyph" style="background:${m.bg}">${m.glyph}</span><h4>${m.name}</h4><p>${m.desc}</p></button>`).join('');
+}
+function goHome() { G = null; closeSheet(); renderHome(); show('home'); }
+
+/* ---------- SETUP SHEET ---------- */
+let S = null;
+function openSheet(html) { $('#sheet').innerHTML = html; $('#scrim').hidden = false; const f = $('#sheet').querySelector('button'); f && f.focus(); }
+function closeSheet() { $('#scrim').hidden = true; S = null; }
+const LENS = { pick: [10, 15, 20], find: [5, 8, 12], root: [8, 12, 16] };
+function openSetup(mode) {
+  const p = P();
+  S = { mode, pairs: [...(p.lastPairs || PAIRS.map(x => x.id))], len: LENS[mode][1] };
+  renderSetup();
+}
+function renderSetup() {
+  const m = MODES.find(x => x.id === S.mode);
+  // root families exist only for some pairs
+  const avail = S.mode === 'root' ? PAIRS.filter(pr => FAMILIES.some(f => f.pair === pr.id)) : PAIRS;
+  S.pairs = S.pairs.filter(id => avail.some(pr => pr.id === id));
+  openSheet(`<h3 id="sheet-title">${m.name}</h3>
+    <div class="grp"><span class="lab">אילו אותיות?</span>
+      <div class="chips">${avail.map(pr => `<button class="tchip" data-action="set-pair" data-pair="${pr.id}" aria-pressed="${S.pairs.includes(pr.id)}">${pr.label}</button>`).join('')}</div>
+      <div class="chips"><button class="tchip sm" data-action="set-all">הכול</button><button class="tchip sm" data-action="set-none">ניקוי</button></div></div>
+    <div class="grp"><span class="lab">${S.mode === 'find' ? 'כמה משפטים' : 'כמה מילים'}</span>
+      <div class="chips">${LENS[S.mode].map(n => `<button class="tchip sm" data-action="set-len" data-v="${n}" aria-pressed="${S.len === n}">${n}</button>`).join('')}</div></div>
+    <div class="row" style="justify-content:flex-end"><button class="btn alt" data-action="close-sheet">ביטול</button><button class="btn accent big" data-action="go" ${S.pairs.length ? '' : 'disabled'}>התחלה</button></div>`);
+}
+
+/* ---------- shared game state ---------- */
+let G = null;
+const hud = () => `<span class="pill">${Math.min(G.i + 1, G.items.length)} / ${G.items.length}</span><span class="pill ${G.streak >= 5 ? 'hot' : ''}">רצף ${G.streak}</span>`;
+function scoreAnswer(ok, missedWord) {
+  if (ok) { G.right++; G.streak++; G.best = Math.max(G.best, G.streak); SFX.ok(); }
+  else { G.wrong++; G.streak = 0; SFX.bad(); if (missedWord && !G.missed.includes(missedWord)) G.missed.push(missedWord); }
+}
+const clueHTML = clue => clue ? `<p class="clue">${esc(clue).replace('___', '<span class="blank"></span>')}</p>` : '';
+const wordHTML = (e, fill, state) => `<div class="word">${esc(e.pre)}<span class="slot ${state || ''}">${fill ? esc(fill) : '&nbsp;'}</span>${esc(e.post)}</div>`;
+function shakeCard(el) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
+
+/* ---------- GAME 1: which letter ---------- */
+function startPick(opts) {
+  const p = P();
+  const pool = PAIRS.filter(pr => opts.pairs.includes(pr.id)).flatMap(pr => pr.entries);
+  const items = sample(pool, opts.len, e => wordWeight(p, e.pair, e.word));
+  G = { mode: 'pick', opts, items, i: 0, right: 0, wrong: 0, streak: 0, best: 0, missed: [], xp0: p.xp, retried: new Set() };
+  show('pick'); renderPick();
+}
+function renderPick() {
+  const e = G.items[G.i];
+  G.choices = shuffle([e.c, e.d]); G.lock = false;
+  $('#pick-hud').innerHTML = hud();
+  $('#pick-card').innerHTML = wordHTML(e) + clueHTML(e.clue);
+  $('#pick-choices').innerHTML = G.choices.map((c, i) => `<button class="choice" data-action="choose" data-i="${i}">${esc(c)}<span class="k">${i + 1}</span></button>`).join('');
+  $('#pick-fb').hidden = true;
+}
+function choosePick(i) {
+  if (!G || G.mode !== 'pick' || G.lock) return;
+  G.lock = true;
+  const e = G.items[G.i], ok = G.choices[i] === e.c;
+  record(e.pair, e.word, ok);
+  scoreAnswer(ok, e.word);
+  $('#pick-card').innerHTML = wordHTML(e, e.c, ok ? 'ok' : 'no') + clueHTML(e.clue);
+  const btns = $('#pick-choices').children;
+  btns[i].classList.add(ok ? 'ok' : 'no');
+  $('#pick-hud').innerHTML = hud();
+  if (ok) { setTimeout(nextPick, 650); return; }
+  btns[G.choices.indexOf(e.c)].classList.add('ok');
+  shakeCard($('#pick-card'));
+  // a missed word comes back a few questions later, once
+  if (!G.retried.has(e.word)) { G.retried.add(e.word); G.items.splice(Math.min(G.i + 4, G.items.length), 0, e); }
+  showFeedback('#pick-fb', `<div class="big">כותבים: <em>${esc(e.word)}</em></div><div class="tip"><b>טיפ:</b> ${esc(pairById(e.pair).tip)}</div>`);
+}
+function nextPick() { G.i++; if (G.i >= G.items.length) return finish(); renderPick(); }
+function showFeedback(sel, html, good = false) {
+  const fb = $(sel);
+  fb.className = 'feedback' + (good ? ' good' : '');
+  fb.innerHTML = html + `<button class="btn big accent" data-action="next">הבנתי, הלאה</button>`;
+  fb.hidden = false; fb.querySelector('button').focus();
+}
+
+/* ---------- GAME 2: find the mistake ---------- */
+function startFind(opts) {
+  const p = P();
+  const pool = SENT.filter(s => s.some(t => t.pair && opts.pairs.includes(t.pair)));
+  const items = shuffle(pool).slice(0, opts.len).map(tokens => {
+    const spots = tokens.filter(t => t.pair && opts.pairs.includes(t.pair));
+    const clean = Math.random() < .2;   // sometimes the sentence is fine, so "no mistake" is a real answer
+    const target = clean ? null : sample(spots, 1, t => wordWeight(p, t.pair, t.word))[0];
+    return { tokens, target };
+  });
+  G = { mode: 'find', opts, items, i: 0, right: 0, wrong: 0, streak: 0, best: 0, missed: [], xp0: p.xp };
+  show('find'); renderFind();
+}
+const tokText = (t, target) => t === target ? t.pre + t.d + t.post : t.text;
+function renderFind() {
+  const it = G.items[G.i];
+  G.step = 'find'; G.tries = 0;
+  $('#find-hud').innerHTML = hud();
+  $('#find-prompt').textContent = 'יש במשפט טעות כתיב? ללחוץ על המילה השגויה.';
+  $('#find-card').innerHTML = `<div class="sentence">${it.tokens.map((t, k) => `<button class="tok" data-action="tok" data-k="${k}">${esc(tokText(t, it.target))}</button>`).join('')}</div>`;
+  $('#find-extra').innerHTML = `<div style="text-align:center"><button class="btn alt big" data-action="no-mistake">אין טעות במשפט</button></div>`;
+  $('#find-fb').hidden = true;
+}
+function findMiss(el) {
+  G.tries++; SFX.bad();
+  if (el) { el.classList.remove('miss'); void el.offsetWidth; el.classList.add('miss'); }
+  else shakeCard($('#find-card'));
+  if (G.tries < 2) { $('#find-prompt').textContent = 'לא זה. לנסות שוב!'; return; }
+  // second miss: show the answer
+  const it = G.items[G.i];
+  scoreAnswer(false, it.target ? it.target.word : null);
+  if (it.target) record(it.target.pair, it.target.word, false);
+  G.step = 'done';
+  revealFind(false);
+}
+function tapToken(k) {
+  if (!G || G.mode !== 'find' || G.step !== 'find') return;
+  const it = G.items[G.i], t = it.tokens[k], el = $(`#find-card .tok[data-k="${k}"]`);
+  if (t !== it.target) return findMiss(el);
+  // found it: now fix it
+  G.step = 'fix';
+  el.classList.add('target');
+  const letters = shuffle([...new Set(PAIRS.flatMap(p => p.l))].filter(x => x !== base(t.c[0]) && x !== base(t.d[0]))).slice(0, 2);
+  const atEnd = !HEB.test(t.post);
+  G.fixOpts = shuffle([t.c, ...letters.map(x => atEnd ? finalize(x) : x)]);
+  $('#find-prompt').textContent = 'נמצאה! איזו אות צריכה להיות במקום האות המסומנת?';
+  $('#find-extra').innerHTML = `<div class="qcard"><div class="word">${esc(t.pre)}<span class="wrong-letter">${esc(t.d)}</span>${esc(t.post.replace(/[^א-ת]+$/, ''))}</div></div>
+    <div class="choices" style="--n:3;margin-top:12px">${G.fixOpts.map((c, i) => `<button class="choice" data-action="fix" data-i="${i}">${esc(c)}<span class="k">${i + 1}</span></button>`).join('')}</div>`;
+}
+function fixLetter(i) {
+  if (!G || G.mode !== 'find' || G.step !== 'fix') return;
+  const it = G.items[G.i], t = it.target, ok = G.fixOpts[i] === t.c;
+  const btns = $('#find-extra .choices').children;
+  btns[i].classList.add(ok ? 'ok' : 'no');
+  if (!ok) btns[G.fixOpts.indexOf(t.c)].classList.add('ok');
+  const firstTry = ok && G.tries === 0;
+  record(t.pair, t.word, firstTry);
+  scoreAnswer(ok, t.word);
+  G.step = 'done';
+  setTimeout(() => revealFind(ok), ok ? 500 : 900);
+}
+function noMistake() {
+  if (!G || G.mode !== 'find' || G.step !== 'find') return;
+  const it = G.items[G.i];
+  if (it.target) return findMiss(null);
+  scoreAnswer(true); G.step = 'done';
+  revealFind(true);
+}
+function revealFind(ok) {
+  const it = G.items[G.i], t = it.target;
+  $('#find-hud').innerHTML = hud();
+  $('#find-card').innerHTML = `<div class="sentence">${it.tokens.map(x => x === t
+    ? `<span class="tok fixed">${esc(x.pre)}<span class="right-letter">${esc(x.c)}</span>${esc(x.post)}</span>`
+    : `<span class="tok">${esc(x.text)}</span>`).join('')}</div>`;
+  $('#find-extra').innerHTML = '';
+  $('#find-prompt').textContent = '';
+  if (ok && !t) return showFeedback('#find-fb', `<div class="big">${praise()} <em>המשפט תקין.</em></div>`, true);
+  if (ok) return showFeedback('#find-fb', `<div class="big">${praise()} <em>${esc(t.word.replace(/[^א-ת]+$/, ''))}</em></div>`, true);
+  if (!t) return showFeedback('#find-fb', `<div class="big">המשפט היה תקין, לא הייתה בו טעות.</div>`);
+  showFeedback('#find-fb', `<div class="big">כותבים: <em>${esc(bare(t.word))}</em></div><div class="tip"><b>טיפ:</b> ${esc(pairById(t.pair).tip)}</div>`);
+}
+function nextFind() { G.i++; if (G.i >= G.items.length) return finish(); renderFind(); }
+
+/* ---------- GAME 3: root families ---------- */
+function startRoot(opts) {
+  const p = P();
+  const pool = FAMILIES.filter(f => opts.pairs.includes(f.pair)).flatMap(f => ['a', 'b'].flatMap(side => f[side].entries.map(e => ({ f, side, e }))));
+  const items = sample(pool, opts.len, q => wordWeight(p, q.f.pair, q.e.word));
+  G = { mode: 'root', opts, items, i: 0, right: 0, wrong: 0, streak: 0, best: 0, missed: [], xp0: p.xp };
+  show('root'); renderRoot();
+}
+function renderRoot() {
+  const q = G.items[G.i];
+  G.order = shuffle(['a', 'b']); G.lock = false;
+  $('#root-hud').innerHTML = hud();
+  $('#root-card').innerHTML = wordHTML(q.e) + clueHTML(q.e.clue);
+  $('#root-fams').innerHTML = G.order.map((s, i) => `<button class="fam" data-action="fam" data-i="${i}"><b>${q.f[s].root}</b><small>${esc(q.f[s].hint)}</small><span class="eyebrow">${i + 1}</span></button>`).join('');
+  $('#root-fb').hidden = true;
+}
+function chooseFam(i) {
+  if (!G || G.mode !== 'root' || G.lock) return;
+  G.lock = true;
+  const q = G.items[G.i], ok = G.order[i] === q.side, fam = q.f[q.side];
+  record(q.f.pair, q.e.word, ok);
+  scoreAnswer(ok, q.e.word);
+  $('#root-hud').innerHTML = hud();
+  $('#root-card').innerHTML = wordHTML(q.e, q.e.c, ok ? 'ok' : 'no') + clueHTML(q.e.clue);
+  const btns = $('#root-fams').children;
+  btns[i].classList.add(ok ? 'ok' : 'no');
+  if (ok) { setTimeout(nextRoot, 900); return; }
+  btns[G.order.indexOf(q.side)].classList.add('ok');
+  shakeCard($('#root-card'));
+  showFeedback('#root-fb', `<div class="big">כותבים: <em>${esc(q.e.word)}</em></div><div class="tip">המילה שייכת למשפחת <b>${fam.root}</b> (${esc(fam.hint)}), ולכן כותבים ${esc(base(q.e.c))}.</div>`);
+}
+function nextRoot() { G.i++; if (G.i >= G.items.length) return finish(); renderRoot(); }
+
+/* ---------- RESULTS ---------- */
+function finish() {
+  const g = G; G = null;
+  const p = P(), total = g.right + g.wrong, acc = total ? Math.round(g.right / total * 100) : 0;
+  const title = acc === 100 ? 'מושלם!' : acc >= 80 ? 'עבודה מצוינת!' : acc >= 50 ? 'תרגול טוב' : 'להמשיך ככה!';
+  const sub = acc >= 80 ? 'העין של הבלש מתחדדת.' : 'כל טעות שמתורגלת עכשיו נהיית קלה יותר בפעם הבאה.';
+  const missed = g.missed.map(bare);
+  $('#results').innerHTML = `<span class="eyebrow">${esc(p.name)} · שלב ${lvlOf(p.xp)}</span><h2>${title}</h2><p class="sub">${sub}</p>
+    <div class="stats"><div class="stat"><b>${g.right}/${total}</b><span>נכונות</span></div><div class="stat"><b>${acc}%</b><span>דיוק</span></div><div class="stat"><b>${g.best}</b><span>רצף שיא</span></div><div class="stat"><b>${p.xp - g.xp0}</b><span>נקודות</span></div></div>
+    ${missed.length ? `<div class="card"><span class="eyebrow">מילים לתרגול (בכתיב הנכון)</span><div class="missed">${missed.map(w => `<span>${esc(w)}</span>`).join('')}</div></div>` : ''}
+    <div class="res-actions"><button class="btn alt big" data-action="home">בית</button><button class="btn accent big" data-action="again">עוד סיבוב</button></div>`;
+  lastRun = { mode: g.mode, opts: g.opts };
+  show('results');
+  if (acc >= 80) { SFX.win(); setTimeout(confetti, 100); }
+}
+let lastRun = null;
+const START = { pick: startPick, find: startFind, root: startRoot };
+
+/* ---------- EVENTS ---------- */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-action]');
+  if (!el) { if (e.target.id === 'scrim') closeSheet(); return; }
+  const a = el.dataset.action, p = P();
+  const needPlayer = () => { if (p) return false; pickerOpen = true; renderHome(); const n = $('#new-name'); n && n.focus(); toast('קודם להוסיף שם'); return true; };
+  switch (a) {
+    case 'home': goHome(); break;
+    case 'sound': DB.sound = !DB.sound; save(); renderHeader(); break;
+    case 'switch': pickerOpen = true; goHome(); break;
+    case 'pick-player': DB.current = el.dataset.id; pickerOpen = false; save(); renderHome(); break;
+    case 'pair': if (needPlayer()) break; startPick({ pairs: [el.dataset.pair], len: 12 }); break;
+    case 'mode': if (needPlayer()) break; openSetup(el.dataset.mode); break;
+    case 'set-pair': { const id = el.dataset.pair; S.pairs = S.pairs.includes(id) ? S.pairs.filter(x => x !== id) : [...S.pairs, id]; renderSetup(); break; }
+    case 'set-all': S.pairs = PAIRS.map(x => x.id); renderSetup(); break;
+    case 'set-none': S.pairs = []; renderSetup(); break;
+    case 'set-len': S.len = +el.dataset.v; renderSetup(); break;
+    case 'close-sheet': closeSheet(); break;
+    case 'go': { if (!S.pairs.length) break; if (S.mode !== 'root') { p.lastPairs = S.pairs; save(); } const s = S; closeSheet(); START[s.mode]({ pairs: s.pairs, len: s.len }); break; }
+    case 'choose': choosePick(+el.dataset.i); break;
+    case 'tok': tapToken(+el.dataset.k); break;
+    case 'fix': fixLetter(+el.dataset.i); break;
+    case 'no-mistake': noMistake(); break;
+    case 'fam': chooseFam(+el.dataset.i); break;
+    case 'next': if (!G) break; ({ pick: nextPick, find: nextFind, root: nextRoot })[G.mode](); break;
+    case 'again': if (lastRun) START[lastRun.mode](lastRun.opts); else goHome(); break;
+  }
+});
+document.addEventListener('submit', e => {
+  if (e.target.id !== 'add-form') return;
+  e.preventDefault();
+  const name = $('#new-name').value.trim().slice(0, 16);
+  if (!name) { $('#new-name').focus(); return; }
+  const id = 'p' + Date.now().toString(36);
+  DB.players[id] = newPlayer(name); DB.order.push(id); DB.current = id; pickerOpen = false; save();
+  renderHome(); toast(`שלום, ${name}!`);
+});
+// physical key → Hebrew letter, so typing works even when the computer is set to English
+const KEYMAP = { KeyE: 'ק', KeyT: 'א', KeyY: 'ט', KeyU: 'ו', KeyA: 'ש', KeyF: 'כ', KeyG: 'ע', KeyJ: 'ח', KeyL: 'ך', KeyX: 'ס', KeyC: 'ב', KeyV: 'ה', Comma: 'ת' };
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !$('#scrim').hidden) { closeSheet(); return; }
+  if (!G || e.target.tagName === 'INPUT' || e.ctrlKey || e.metaKey || e.altKey) return;
+  const fb = $(`#${G.mode}-fb`);
+  if (e.key === 'Enter') { if (fb && !fb.hidden) { e.preventDefault(); fb.querySelector('button').click(); } return; }
+  const n = /^[1-3]$/.test(e.key) ? +e.key - 1 : -1;
+  if (G.mode === 'pick') {
+    const letter = HEB.test(e.key) ? e.key : KEYMAP[e.code];
+    const i = n >= 0 && n < 2 ? n : letter ? G.choices.findIndex(c => base(c[0]) === base(letter)) : -1;
+    if (i >= 0) { e.preventDefault(); choosePick(i); }
+  } else if (G.mode === 'root' && n >= 0 && n < 2) { e.preventDefault(); chooseFam(n); }
+  else if (G.mode === 'find' && G.step === 'fix' && n >= 0) { e.preventDefault(); fixLetter(n); }
+});
+
+renderHome();
+show('home');
+})();
+</script>
+</body>
+</html>

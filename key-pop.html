@@ -100,16 +100,25 @@ kbd{font-family:var(--display)}
 .play-bar .ptitle{font-family:var(--display);font-weight:600;font-size:20px}
 .meter{flex:1;min-width:120px;height:12px;border-radius:999px;background:var(--sky);overflow:hidden;border:2px solid var(--line)}
 .meter .fill{height:100%;width:0;background:linear-gradient(90deg,var(--f3),var(--f4));border-radius:999px;transition:width .2s}
-.typetext{font:500 clamp(28px,5.4vw,46px)/1.65 var(--display);letter-spacing:.03em;padding:14px 18px;background:var(--sky);border-radius:16px;color:var(--ink-soft);word-break:normal;overflow-wrap:normal;font-variant-numeric:tabular-nums}
-.ch{border-radius:7px;transition:color .1s;display:inline-block;min-width:0.5em}
+.typetext{font:500 clamp(28px,5.4vw,46px)/1.65 var(--display);padding:14px 18px;background:var(--sky);border-radius:16px;color:var(--ink-soft);word-break:normal;overflow-wrap:normal;white-space:break-spaces}
+/* letters stay inline so the font's kerning applies across them; break-spaces keeps every space visible (even at a line end) so the cursor can sit on it */
+.ch{border-radius:7px;transition:color .1s;position:relative}
 .ch.ok{color:var(--ok)}
-.ch.ok.bad{color:var(--bad)}
+.ch.bad{color:var(--bad)}
 .ch.sp{background:color-mix(in srgb,var(--sun) 20%,transparent);border-radius:3px}
 .ch.cur{color:var(--ink);box-shadow:inset 0 -4px 0 var(--sun)}
 .ch.sp.cur{background:color-mix(in srgb,var(--sun) 40%,transparent);box-shadow:inset 0 -4px 0 var(--sun)}
 .ch.cur.bad{box-shadow:inset 0 -5px 0 var(--bad)}
 .shake{animation:shake .28s}
 @keyframes shake{25%{translate:-4px 0}50%{translate:4px 0}75%{translate:-2px 0}}
+.ch.shake{animation-name:shake-inline}
+@keyframes shake-inline{25%{left:-4px}50%{left:4px}75%{left:-2px}}
+.ch.skip{opacity:.55}
+.typetext.ct{max-height:clamp(220px,40vh,360px);overflow-y:auto}
+.paste{display:block;width:100%;min-height:160px;resize:vertical;padding:12px 14px;border:2px solid var(--line);border-radius:16px;background:var(--sky);color:var(--ink);font:18px/1.5 var(--body)}
+.paste:focus{border-color:var(--ink);outline:none}
+.ct-msg{min-height:24px;margin:6px 0;color:var(--bad);font-weight:500}
+.clock{font-variant-numeric:tabular-nums}
 .mini{display:flex;gap:18px;margin-top:10px;color:var(--ink-soft);font-size:14px;font-variant-numeric:tabular-nums}
 .mini b{color:var(--ink)}
 
@@ -154,37 +163,20 @@ kbd{font-family:var(--display)}
 .bal .bb{min-width:62px;height:74px;padding:0 6px;border-radius:50% 50% 47% 47% / 56% 56% 44% 44%;display:grid;place-items:center;
   background:radial-gradient(circle at 30% 26%,rgba(255,255,255,.6) 0 9%,transparent 10%),var(--c);
   color:var(--on-candy);font:600 32px/1 var(--display);box-shadow:inset -6px -8px 0 rgba(0,0,0,.08)}
-.bal.word .bb{height:58px;border-radius:30px;padding:0 18px;font-size:26px}
 .bal .knot{width:10px;height:8px;background:var(--c);clip-path:polygon(50% 0,100% 100%,0 100%);margin-top:-1px}
 .bal .str{width:2px;height:34px;background:var(--ink-soft);opacity:.45}
-.bal .done{opacity:.35}
-.bal.target .bb{outline:3px solid var(--ink);outline-offset:2px}
 .bal.gold .bb{--c:var(--sun);box-shadow:0 0 0 4px #fff8,0 0 18px var(--sun)}
+.bal.bad .bb{width:66px;min-width:0;height:66px;padding:0;border-radius:50%;border:2px solid var(--ink);color:#fff;
+  background:radial-gradient(circle at 32% 30%,rgba(255,255,255,.45) 0 8%,transparent 9%),#2B2F3F;box-shadow:inset -6px -8px 0 rgba(0,0,0,.35)}
+.bal .fuse{position:relative;width:16px;height:10px;margin-bottom:-3px;background:#5A5F73;border:2px solid var(--ink);border-radius:3px 3px 0 0;z-index:1}
+.bal .fuse::before{content:"";position:absolute;left:5px;bottom:8px;width:12px;height:12px;border:2px solid #8A6A3A;border-color:transparent transparent transparent #8A6A3A;border-radius:50%;rotate:30deg}
+.bal .fuse::after{content:"";position:absolute;left:13px;top:-18px;width:10px;height:10px;border-radius:50%;background:radial-gradient(circle,#fff 0 20%,var(--sun) 35%,var(--accent) 60%,transparent 70%);animation:spark .18s infinite alternate}
+@keyframes spark{to{scale:.6;opacity:.7}}
 .bal.popped{transition:scale .18s,opacity .18s;scale:1.6;opacity:0}
 .plus{position:absolute;font:700 22px var(--display);color:var(--accent);pointer-events:none;animation:rise .7s forwards}
 @keyframes rise{to{translate:0 -40px;opacity:0}}
 .banner{position:absolute;left:50%;top:40%;translate:-50% -50%;font:700 40px var(--display);color:var(--accent);text-shadow:0 3px 0 var(--paper);pointer-events:none;animation:bannerin 1.2s forwards;z-index:4;white-space:nowrap}
 @keyframes bannerin{0%{scale:.4;opacity:0}20%{scale:1.1;opacity:1}80%{opacity:1}100%{opacity:0;scale:1}}
-
-/* word rocket */
-.rk{display:grid;grid-template-columns:1fr 96px;gap:16px}
-.rk-main{display:flex;flex-direction:column;min-width:0}
-.rk-word{flex:1;display:grid;place-items:center;min-height:170px;background:var(--sky);border-radius:16px;padding:16px;font:600 clamp(40px,8vw,72px)/1.2 var(--display);letter-spacing:.04em;text-align:center;overflow-wrap:anywhere}
-.rk-word .ch.ok{color:var(--ok)}
-.rk-word .ch{color:var(--ink)}
-.rk-word .ch.todo{color:var(--ink-soft)}
-.rk-next{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:10px;font:500 22px var(--display);color:var(--ink-soft);min-height:34px}
-.rk-next span:nth-child(2){opacity:.7}.rk-next span:nth-child(3){opacity:.45}
-.rk-msg{text-align:center;color:var(--ink-soft);font-size:14px;min-height:21px;margin-top:4px}
-.track{position:relative;height:clamp(260px,40vh,340px);border-radius:48px;background:linear-gradient(to top,var(--sky),color-mix(in srgb,var(--f5) 25%,var(--sky)));overflow:hidden}
-.track::before{content:"";position:absolute;left:50%;top:60px;bottom:20px;border-left:3px dotted var(--line)}
-.moon{position:absolute;left:50%;top:10px;translate:-50% 0;width:46px;height:46px;border-radius:50%;background:var(--sun);box-shadow:inset -8px -6px 0 color-mix(in srgb,var(--sun) 70%,#000 12%)}
-.rocket{position:absolute;left:50%;bottom:6%;translate:-50% 0;width:40px;transition:bottom .35s cubic-bezier(.3,1.4,.5,1)}
-.rocket svg{width:40px;height:64px;display:block}
-.rocket .flame{transform-origin:20px 38px;animation:flick .15s infinite alternate}
-@keyframes flick{to{scale:1 .7}}
-.track .stars-bg i{position:absolute;width:4px;height:4px;border-radius:50%;background:var(--ink-soft);opacity:.35}
-@media (max-width:560px){.rk{grid-template-columns:1fr 64px}.track{border-radius:32px}}
 
 /* dock: hint, keyboard, hands */
 .dock{display:flex;flex-direction:column;gap:10px;align-items:center}
@@ -291,56 +283,73 @@ const WORDS = {
   bunny turtle rabbit monkey panda koala dragon castle princess queen king magic cloud river ocean beach shell train plane rocket robot pencil
   paper school friend sister brother mother father family party cookie juice bread cheese lemon orange purple yellow green white black brown
   bright jelly honey sugar butterfly penguin giraffe dolphin octopus forest island winter summer spring pillow blanket window muffin pancake
-  popcorn picnic sparkle wonder`.trim().split(/\s+/)),
+  popcorn picnic sparkle wonder
+  go see look come play eat drink sleep read write draw sing walk talk think know like love help make take give get put sit stand
+  open close find call tell want need feel keep try turn start stop swim climb throw catch push pull build cook wash laugh cry learn
+  count type ride grow hide went saw ate came made said took gave
+  new old good bad fast slow soft hard long short tall small little cold hot warm cool sweet sour quiet loud clean dirty near far
+  heavy light kind brave nice full empty first last dark wet dry early late
+  in on at to of for from with by up down over under into out off after before around behind between about through
+  i you he she it we they me him her us them my your his its our their this that these those
+  and or but not so if then when where what who why how which there here very too also only just more most some any each every many much few no
+  one two three four five six seven eight nine ten eleven twelve twenty hundred zero
+  today day night week year time now soon again always never`.trim().split(/\s+/)),
   he: uniq(`שלום אבא אמא כלב חתול בית ספר ים שמש פרח תפוח בננה גלידה ציפור דג עץ ירח כוכב חבר משחק שוקולד פיל אריה ארנב סוס פרפר עוגה
   מים לחם גשם ענן קשת כדור בובה מכונית ילדה ילד מורה גן חלב ביצה תות אבטיח אחות אח סבא סבתא דוב נמר זברה קוף צב שועל ינשוף דבורה נמלה
   חול גל סירה מטוס רכבת צבע אדום כחול צהוב ירוק לבן שחור ורוד סגול כתום שמח עצוב גדול קטן חם קר יפה טוב לילה בוקר ערב יום שבת חג מתנה
   בלון שיר ריקוד ציור עיפרון מחק מחברת תיק כיתה חופש קיץ חורף אביב סתיו שלג רוח פיצה פסטה מרק סלט מלפפון גזר תפוז לימון ענבים אגס
   עוגייה ממתק כובע נעל שמלה חולצה גרביים מיטה כרית שמיכה חלון דלת שולחן כיסא מנורה מפתח שעון טלפון מחשב מקלדת אות מילה סיפור חלום
-  קסם נסיכה מלך מלכה דרקון טירה יער הר נהר אגם פרה כבש תרנגול ברווז דולפין לוויתן כריש תמנון שלג דג לך כל גג שק דלי כד חג סל לול`.trim().split(/\s+/))
-};
-
-const SPELLING_WORDS = {
-  en: ['apple', 'book', 'cat', 'dog', 'egg', 'fish', 'fun', 'go', 'happy', 'I', 'jump', 'king', 'love', 'make', 'name', 'orange', 'play', 'queen', 'read', 'see', 'tree', 'use', 'very', 'walk', 'yes', 'zoo', 'run', 'sit', 'eat', 'bat', 'big', 'box', 'boy', 'bus', 'car', 'day', 'did', 'eat', 'end', 'get', 'got', 'had', 'has', 'hat', 'her', 'him', 'his', 'hot', 'how', 'its', 'jet', 'job', 'let', 'lot', 'may', 'men', 'new', 'not', 'now', 'old', 'one', 'our', 'out', 'put', 'ran', 'red', 'run', 'said', 'say', 'she', 'sit', 'sun', 'ten', 'the', 'too', 'top', 'two', 'was', 'way', 'wet', 'who', 'why', 'win', 'won', 'you'],
-  he: ['אמא', 'אבא', 'כלב', 'חתול', 'דג', 'ציפור', 'ספר', 'בית', 'תפוח', 'בננה', 'גלידה', 'לחם', 'מים', 'עץ', 'ירח', 'שמש', 'כוכב', 'פרח', 'פרפר', 'נמלה', 'דבורה', 'נחש', 'קוף', 'אריה', 'פיל', 'סוס', 'פרה', 'תרנגול', 'ברווז', 'שועל', 'דוב', 'זברה', 'גיראף', 'דולפין', 'לוויתן', 'כריש', 'צבע', 'כדור', 'בובה', 'מכונית', 'אופנוע', 'אופניים', 'רכבת', 'מטוס', 'סירה', 'שיר', 'מוסיקה', 'ריקוד', 'ציור', 'עפרון', 'ספר', 'רדיו', 'טלוויזיה', 'טלפון']
+  קסם נסיכה מלך מלכה דרקון טירה יער הר נהר אגם פרה כבש תרנגול ברווז דולפין לוויתן כריש תמנון שלג דג לך כל גג שק דלי כד חג סל לול
+  ללכת לרוץ לקפוץ לשחק לאכול לשתות לישון לקרוא לכתוב לצייר לשיר לרקוד לשחות לראות לשמוע לדבר לחשוב לאהוב לעזור לבנות
+  לפתוח לסגור לתת לקחת לבוא לשבת לעמוד לצחוק לבכות ללמוד ללמד לספור להקליד לטוס לנסוע לחבק
+  הלך אכל שתה ישן קרא כתב רץ קפץ שיחק ראה שמע אמר
+  חדש ישן מהיר איטי רך קשה ארוך קצר גבוה נמוך חזק חלש מתוק חמוץ שקט רועש נקי רחוק קרוב קל כבד ראשון אחרון חכם נחמד
+  על של עם אל בלי לפני אחרי ליד בין מתחת מעל אצל בגלל כמו בתוך מחוץ
+  אני אתה את הוא היא אנחנו אתם אתן הם הן שלי שלך שלו שלה שלנו זה זאת אלה
+  כן לא גם רק עוד כבר עכשיו היום מחר אתמול פה שם כאן מאוד הרבה מעט תמיד אף פעם אולי ביחד אבל או אם כי
+  מה מי איפה מתי למה איך כמה
+  אחת שתיים שלוש ארבע חמש שש שבע שמונה תשע עשר אחד שניים מאה אלף אפס
+  שבוע שנה זמן שעה דקה רגע`.trim().split(/\s+/))
 };
 
 /* ---------- words on screen ---------- */
 const T = {
   en:{tagline:'Typing practice for little fingers', lessons:'Lessons', lessonsSub:'Learn every key, two at a time',
-    balloon:'Balloon Pop', balloonSub:'Pop letters before they float away', spell:'Spelling', spellSub:'Learn to spell important words',
+    balloon:'Balloon Pop', balloonSub:'Pop letters before they float away',
     pickLesson:'Pick a lesson', lessonIntro:'Each lesson adds new keys. Go slowly and look at the screen, not your hands.',
     home:'Home row', top:'Top row', bottom:'Bottom row', review:'Big review', allKeys:'Real words',
     lesson:'Lesson', back:'← All lessons', accuracy:'Accuracy', wpm:'Words per minute', again:'Try again', next:'Next lesson',
     stars3:'Amazing!', stars2:'Great job!', stars1:'Nice try! Go a bit slower to win more stars.',
-    press:'Press', with:'with your', space:'space',
+    press:'Press', with:'with your', space:'space', wordrush:'Word Rush', wordrushSub:'Type words as fast as you can',
     fingers:{lp:'left pinky',lr:'left ring finger',lm:'left middle finger',li:'left pointer finger',ri:'right pointer finger',rm:'right middle finger',rr:'right ring finger',rp:'right pinky',th:'thumb'},
     hintIdle:'Rest your fingers on the home row. Pointer fingers go on the keys with bumps: <b>F</b> and <b>J</b>.',
     note:'No need to switch the computer to Hebrew. The game reads which key is pressed, so both languages work with any keyboard setting.',
     addPlayer:'Add player', playerN:'Player', who:'Who is playing?', soundOn:'Sound on', soundOff:'Sound off',
     score:'Score', level:'Level', best:'Best', start:'Start', playAgain:'Play again', gameOver:'The balloons got away!', newBest:'New best!',
     pairs:{F_J:'F + J', D_K:'D + K', S_L:'S + L', A_SEMI:'A + ;', G_H:'G + H', E_I:'E + I', R_U:'R + U', T_Y:'T + Y', W_O:'W + O', Q_P:'Q + P', V_M:'V + M', B_N:'B + N', C_COMMA:'C + ,', X_PERIOD_Z:'X + . + Z'},
-    bpHow:'Type the letter on a balloon to pop it. If 3 balloons float away, the game is over. Gold balloons give you an extra heart.',
-    short:'Short words', long:'Long words', time:'Time', words:'Words', enterHint:'or press Enter', bpPlaying:'Type the letters on the balloons!', tapHint:'Press Esc to stop',
-    spellHow:'Look at the word and type it. Make a mistake? Press backspace to fix it! Get 3 words right to complete the level.',
-    correct:'Correct!', level:'Level', nextWord:'Next word'},
-  he:{tagline:'תרגול הקלדה לאצבעות קטנות', lessons:'שיעורים', lessonsSub:'לומדות כל מקש, שניים בכל פעם',
-    balloon:'פיצוץ בלונים', balloonSub:'פוצצי אותיות לפני שהן עפות', spell:'איות', spellSub:'למדו איות של מילים חשובות',
-    pickLesson:'בחרי שיעור', lessonIntro:'כל שיעור מוסיף מקשים חדשים. לאט לאט, ולהסתכל על המסך ולא על הידיים.',
+    bpHow:'Type the letter on a balloon to pop it. If 3 balloons float away, the game is over. Gold balloons give you an extra heart. Don\'t type the letter on a bomb — let it float away!',
+    enterHint:'or press Enter', bpPlaying:'Type the letters on the balloons!', withBombs:'With bombs', noBombs:'No bombs', tapHint:'Press Esc to stop',
+    custom:'My Text', customSub:'Paste any text and race the clock', pasteHere:'Paste your text here…', pasteEmpty:'Add some text with letters first.',
+    customHow:'Paste or type any text, press Start, then type it as fast as you can. The clock starts with your first key. Capital letters are typed as small letters, and symbols that aren\'t on the keyboard are skipped.',
+    newText:'← New text', seconds:'Seconds'},
+  he:{tagline:'תרגול הקלדה לאצבעות קטנות', lessons:'שיעורים', lessonsSub:'ללמוד כל מקש, שניים בכל פעם',
+    balloon:'פיצוץ בלונים', balloonSub:'לפוצץ אותיות לפני שהן עפות',
+    pickLesson:'בחירת שיעור', lessonIntro:'כל שיעור מוסיף מקשים חדשים. לאט לאט, ולהסתכל על המסך ולא על הידיים.',
     home:'השורה האמצעית', top:'השורה העליונה', bottom:'השורה התחתונה', review:'חזרה גדולה', allKeys:'מילים אמיתיות',
     lesson:'שיעור', back:'→ כל השיעורים', accuracy:'דיוק', wpm:'מילים בדקה', again:'עוד פעם', next:'לשיעור הבא',
-    stars3:'מדהים!', stars2:'כל הכבוד!', stars1:'ניסיון יפה! קצת יותר לאט ותקבלי יותר כוכבים.',
-    press:'לחצו על', with:'עם', space:'רווח', wordrush:'מרוץ מילים', wordrushSub:'הקלידו מילים כמהר שאתם יכולות',
+    stars3:'מדהים!', stars2:'כל הכבוד!', stars1:'ניסיון יפה! קצת יותר לאט, ויהיו יותר כוכבים.',
+    press:'ללחוץ על', with:'עם', space:'רווח', wordrush:'מרוץ מילים', wordrushSub:'להקליד מילים הכי מהר שאפשר',
     fingers:{lp:'הזרת השמאלית',lr:'הקמיצה השמאלית',lm:'האמה השמאלית',li:'האצבע המורה השמאלית',ri:'האצבע המורה הימנית',rm:'האמה הימנית',rr:'הקמיצה הימנית',rp:'הזרת הימנית',th:'האגודל'},
-    hintIdle:'הניחי את האצבעות על השורה האמצעית. האצבעות המורות על המקשים עם הבליטות: <b>כ</b> ו־<b>ח</b>.',
+    hintIdle:'להניח את האצבעות על השורה האמצעית. האצבעות המורות על המקשים עם הבליטות: <b>כ</b> ו־<b>ח</b>.',
     note:'אין צורך להחליף את שפת המחשב. המשחק מזהה איזה מקש נלחץ, כך ששתי השפות עובדות בכל הגדרת מקלדת.',
-    addPlayer:'הוספת שחקנית', playerN:'שחקנית', who:'מי משחקת?', soundOn:'צליל פועל', soundOff:'צליל כבוי',
+    addPlayer:'הוספת שחקן/ית', playerN:'שחקן/ית', who:'מי במשחק?', soundOn:'צליל פועל', soundOff:'צליל כבוי',
     score:'ניקוד', level:'שלב', best:'שיא', start:'התחלה', playAgain:'עוד משחק', gameOver:'הבלונים ברחו!', newBest:'שיא חדש!',
     pairs:{F_J:'כ + ח', D_K:'ג + ל', S_L:'ד + ך', A_SEMI:'ש + ף', G_H:'ע + י', E_I:'ק + ן', R_U:'ר + ו', T_Y:'א + ט', W_O:"' + ם", Q_P:'/ + פ', V_M:'ה + צ', B_N:'נ + מ', C_COMMA:'ב + ת', X_PERIOD_Z:'ס + ץ + ז'},
-    bpHow:'הקלידי את האות שעל הבלון כדי לפוצץ אותו. אם 3 בלונים בורחים, המשחק נגמר. בלון זהב נותן לב נוסף.',
-    short:'מילים קצרות', long:'מילים ארוכות', time:'זמן', words:'מילים', enterHint:'או לחצי Enter', bpPlaying:'הקלידי את האותיות שעל הבלונים!', tapHint:'Esc כדי לעצור',
-    spellHow:'תראי את המילה והקלידיה. טעות? לחצי backspace כדי לתקן! תקבלי 3 מילים נכון כדי להשלים את השלב.',
-    correct:'נכון!', level:'שלב', nextWord:'המילה הבאה'}
+    bpHow:'כדי לפוצץ בלון, להקליד את האות שעליו. אם 3 בלונים בורחים, המשחק נגמר. בלון זהב נותן לב נוסף. לא להקליד את האות שעל פצצה — פשוט לתת לה לעוף!',
+    enterHint:'או ללחוץ Enter', bpPlaying:'להקליד את האותיות שעל הבלונים!', withBombs:'עם פצצות', noBombs:'בלי פצצות', tapHint:'Esc כדי לעצור',
+    custom:'הטקסט שלי', customSub:'להדביק כל טקסט ולהתחרות בשעון', pasteHere:'הדבקת טקסט כאן…', pasteEmpty:'קודם צריך להוסיף טקסט עם אותיות.',
+    customHow:'להדביק או לכתוב כל טקסט, ללחוץ על התחלה, ואז להקליד אותו הכי מהר שאפשר. השעון מתחיל בהקשה הראשונה. סימנים שאין במקלדת מדולגים.',
+    newText:'→ טקסט חדש', seconds:'שניות'}
 };
 const t = k => T[S.lang][k];
 
@@ -351,6 +360,7 @@ const ICON = {
   lessons:'<svg viewBox="0 0 32 32"><rect x="4" y="6" width="24" height="20" rx="5" fill="var(--f4)" stroke="var(--ink)" stroke-width="2.4"/><rect x="8" y="10" width="16" height="11" rx="3" fill="var(--paper)" stroke="var(--ink)" stroke-width="2"/><path d="M16 13v5" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round"/></svg>',
   balloon:'<svg viewBox="0 0 32 32"><ellipse cx="16" cy="12" rx="9" ry="10" fill="var(--f1)" stroke="var(--ink)" stroke-width="2.4"/><path d="M14 22h4l-2 3z" fill="var(--f1)" stroke="var(--ink)" stroke-width="2"/><path d="M16 25q-3 3 0 6" fill="none" stroke="var(--ink)" stroke-width="2"/><circle cx="12.5" cy="8.5" r="2" fill="var(--paper)"/></svg>',
   spell:'<svg viewBox="0 0 32 32"><path d="M4 8h24v16H4z" fill="var(--f5)" stroke="var(--ink)" stroke-width="2.2"/><path d="M8 14h16M8 20h12" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round"/></svg>',
+  custom:'<svg viewBox="0 0 32 32"><circle cx="16" cy="18" r="11" fill="var(--f2)" stroke="var(--ink)" stroke-width="2.4"/><path d="M13 4h6M16 4v3" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round"/><path d="M16 18v-6M16 18l4 3" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round"/></svg>',
   soundOn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>',
   soundOff:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>'
 };
@@ -363,6 +373,7 @@ try { S = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch(e) { S = null
 if (!S || !Array.isArray(S.players) || !S.players.length) S = {players:[{id:'p1',name:'Player 1'},{id:'p2',name:'Player 2'}], current:'p1', lang:'en', sound:true, progress:{}};
 if (!S.players.find(p=>p.id===S.current)) S.current = S.players[0].id;
 S.progress ||= {};
+S.bombs ??= true;
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} };
 function prog(){ const p = S.progress[S.current] ||= {}; const l = p[S.lang] ||= {}; l.stars ||= {}; l.best ||= {}; return l; }
 
@@ -399,8 +410,7 @@ const sfx = {
   pop:()=>{ tone(900,.06,'triangle',.08); tone(1400,.09,'sine',.05,.04); },
   lose:()=>[392,330].forEach((f,i)=>tone(f,.16,'triangle',.07,i*.12)),
   win:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.2,'triangle',.08,i*.11)),
-  over:()=>[392,330,262].forEach((f,i)=>tone(f,.22,'triangle',.08,i*.16)),
-  zoom:()=>{ const a=audio(); if(!a) return; const o=a.createOscillator(),g=a.createGain(),t0=a.currentTime; o.type='sawtooth'; o.frequency.setValueAtTime(220,t0); o.frequency.exponentialRampToValueAtTime(880,t0+.18); g.gain.setValueAtTime(.03,t0); g.gain.exponentialRampToValueAtTime(.0001,t0+.2); o.connect(g).connect(a.destination); o.start(t0); o.stop(t0+.22); }
+  over:()=>[392,330,262].forEach((f,i)=>tone(f,.22,'triangle',.08,i*.16))
 };
 
 function confetti(){
@@ -459,7 +469,8 @@ $('#players').addEventListener('click', e=>{
 function renderModes(){
   const modes = [{id:'lessons',icon:'lessons',label:T[S.lang]['lessons'],sub:T[S.lang]['lessonsSub']},
     {id:'balloon',icon:'balloon',label:T[S.lang]['balloon'],sub:T[S.lang]['balloonSub']},
-    {id:'wordrush',icon:'balloon',label:T[S.lang]['wordrush'],sub:T[S.lang]['wordrushSub']}];
+    {id:'wordrush',icon:'spell',label:T[S.lang]['wordrush'],sub:T[S.lang]['wordrushSub']},
+    {id:'custom',icon:'custom',label:t('custom'),sub:t('customSub')}];
   $('#modes').innerHTML = modes.map(m=>
     `<button class="mode ${mode===m.id?'on':''}" data-mode="${m.id}"><span class="mi">${ICON[m.icon]}</span><span><b>${m.label}</b><small>${m.sub}</small></span></button>`).join('');
 }
@@ -514,7 +525,7 @@ document.addEventListener('keydown', e=>{
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   if (e.key==='Escape'){ onEscape && onEscape(); return; }
   if (e.key==='Enter'){ const b = stage.querySelector('[data-enter]'); if (b){ e.preventDefault(); b.click(); } return; }
-  if (e.key==='Backspace'){ e.preventDefault(); if (Ls) lessonBackspace(); return; }
+  if (e.key==='Backspace'){ e.preventDefault(); if (mode==='custom') ctBackspace(); else if (Ls) lessonBackspace(); return; }
   let code = e.code;
   if (!(code in LAYOUT.en) && code!=='Space'){
     code = null;
@@ -532,11 +543,12 @@ function cleanup(){
   onChar = null; onEscape = null;
   B.running = false; cancelAnimationFrame(B.raf);
   WR.running = false;
+  clearInterval(CT.timer); CT.timer = null;
   preview(null); setNext(null);
 }
 function go(m){
   cleanup(); mode = m; renderModes();
-  if (m==='lessons') showLessons(); else if (m==='balloon') showBalloon(); else if (m==='wordrush') showWordRush();
+  if (m==='lessons') showLessons(); else if (m==='balloon') showBalloon(); else if (m==='wordrush') showWordRush(); else if (m==='custom') showCustom();
 }
 stage.addEventListener('click', e=>{
   const a = e.target.closest('[data-act]'); if (!a) return;
@@ -545,7 +557,10 @@ stage.addEventListener('click', e=>{
   else if (act==='lessons') showLessons();
   else if (act==='bstart') bStart();
   else if (act==='bpresets') bPreset(a.dataset.v);
+  else if (act==='bbombs'){ S.bombs = !!a.dataset.v; save(); showBalloon(); }
   else if (act==='wr') wrStart();
+  else if (act==='custom') showCustom();
+  else if (act==='ctstart') ctStart();
 });
 
 /* ---------- lessons ---------- */
@@ -641,7 +656,7 @@ function finishLesson(){
 }
 
 /* ---------- balloon pop ---------- */
-const B = {selected:new Set(), running:false, list:[], speed:1, wrongKeys:0};
+const B = {selected:new Set(), running:false, list:[], speed:1};
 const PAIR_KEYS = {F_J:['KeyF','KeyJ'],D_K:['KeyD','KeyK'],S_L:['KeyS','KeyL'],A_SEMI:['KeyA','Semicolon'],G_H:['KeyG','KeyH'],
   E_I:['KeyE','KeyI'],R_U:['KeyR','KeyU'],T_Y:['KeyT','KeyY'],W_O:['KeyW','KeyO'],Q_P:['KeyQ','KeyP'],
   V_M:['KeyV','KeyM'],B_N:['KeyB','KeyN'],C_COMMA:['KeyC','Comma'],X_PERIOD_Z:['KeyX','Period','KeyZ']};
@@ -655,9 +670,8 @@ function balloonPool(){
 function showBalloon(){
   cleanup();
   if (B.selected.size===0) B.selected.add('F_J');
-  const pairsHtml = Object.entries(t('pairs')).map(([k,v])=>`<button class="chip" data-pair="${k}" style="font-size:13px;padding:6px 10px;${B.selected.has(k)?'border-color:var(--ink);background:var(--ink);color:var(--paper)':''}" data-pair-check>${v}</button>`).join('');
-  const bestKey = Array.from(B.selected).sort().join('_');
-  const best = prog().best['balloon_'+bestKey] || 0;
+  const pairsHtml = Object.entries(t('pairs')).map(([k,v])=>`<button class="chip${B.selected.has(k)?' on':''}" data-pair="${k}" style="font-size:13px;padding:6px 10px" data-pair-check>${v}</button>`).join('');
+  const best = prog().best[bBestKey()] || 0;
   stage.innerHTML = `<div class="hud"><span class="stat"><span>${t('score')}</span><b id="bScore">0</b></span><span class="stat"><span>${t('level')}</span><b id="bLevel">1</b></span><span class="hearts" id="bHearts"></span><span id="wrongMsg" style="font-size:13px;color:var(--bad);font-weight:600;min-height:20px"></span></div>
     <div class="sky" id="sky" dir="ltr">
       <div class="cloud" style="width:80px;top:16%;left:8%"></div><div class="cloud" style="width:110px;top:34%;right:10%"></div><div class="cloud" style="width:70px;top:62%;left:40%"></div>
@@ -669,7 +683,8 @@ function showBalloon(){
           <button class="chip" data-act="bpresets" data-v="bottom" style="padding:3px 8px;font-size:11px">Bottom</button>
         </div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:6px 0;font-size:10px">${pairsHtml}</div>
-        <div style="margin:8px 0;display:flex;align-items:center;gap:6px;font-size:12px"><label style="color:var(--ink-soft);min-width:40px">Speed:</label><input type="range" id="speedSlider" min="0.5" max="2" step="0.25" value="1" style="flex:1;cursor:pointer;height:3px"><span id="speedVal" style="font-size:11px;min-width:20px">1x</span></div>
+        <div class="chips"><button class="chip${S.bombs?' on':''}" data-act="bbombs" data-v="1">💣 ${t('withBombs')}</button><button class="chip${S.bombs?'':' on'}" data-act="bbombs" data-v="">${t('noBombs')}</button></div>
+        <div style="margin:8px 0;display:flex;align-items:center;gap:6px;font-size:12px"><label style="color:var(--ink-soft);min-width:40px">Speed:</label><input type="range" id="speedSlider" min="0.5" max="2" step="0.25" value="${B.speed}" style="flex:1;cursor:pointer;height:3px"><span id="speedVal" style="font-size:11px;min-width:20px">${B.speed.toFixed(2)}x</span></div>
         ${best?`<span class="badge" style="font-size:11px;padding:2px 8px">${t('best')}: ${best}</span>`:''}
         <button class="btn primary" data-act="bstart" data-enter style="margin-top:4px;padding:6px 12px;font-size:14px">${t('start')}</button><span class="enter-hint" style="font-size:11px">${t('enterHint')}</span></div></div>
     </div>`;
@@ -682,6 +697,8 @@ function showBalloon(){
   }));
   stage.querySelector('#speedSlider')?.addEventListener('input', e=>{B.speed=parseFloat(e.target.value); $('#speedVal').textContent=(B.speed.toFixed(2))+'x';});
 }
+// bomb-free runs are easier, so they keep their own best score
+const bBestKey = () => 'balloon_'+Array.from(B.selected).sort().join('_')+(S.bombs?'':'_nobombs');
 function drawHearts(n){ $('#bHearts').innerHTML = Array.from({length:Math.max(3,n)},(_,i)=>HEART.replace('%', i<n?'':'gone')).join(''); }
 function bPreset(v){
   B.selected.clear();
@@ -699,7 +716,7 @@ function bPreset(v){
 function bStart(){
   cleanup();
   B.list.forEach(b=>b.el.remove());
-  Object.assign(B, {running:true, list:[], score:0, lives:3, level:1, pops:0, spawned:0, target:null, elapsed:0, nextSpawn:0, last:performance.now(), pool:balloonPool()});
+  Object.assign(B, {running:true, list:[], score:0, lives:3, level:1, pops:0, spawned:0, wrongKeys:0, elapsed:0, nextSpawn:0, last:performance.now(), pool:balloonPool()});
   $('#bOv').remove();
   $('#bScore').textContent = 0; $('#bLevel').textContent = 1; drawHearts(3);
   setHint(`${t('bpPlaying')} <span style="opacity:.7">· ${t('tapHint')}</span>`);
@@ -709,20 +726,24 @@ function bStart(){
 const travel = () => (Math.max(3.2, 8.5-(B.level-1)*.55)) / B.speed;
 const gap = () => (Math.max(.55, 1.7-(B.level-1)*.12)) / B.speed;
 function bSpawn(W,H){
-  const text = pick(B.pool);
   const gold = (++B.spawned % 12)===0;
-  const bad = !gold && Math.random()<0.15;
+  const bad = S.bombs && !gold && Math.random()<0.15;
+  // keep bombs and balloons on different letters when the pool allows, so a bomb's letter is never one you need
+  const clash = new Set(B.list.filter(b=>b.bad!==bad).map(b=>b.text));
+  const free = B.pool.filter(c=>!clash.has(c));
+  const text = pick(free.length ? free : B.pool);
   const colors = ['--f1','--f2','--f3','--f4','--f5'];
   const el = document.createElement('div');
-  el.className = 'bal' + (B.words?' word':'') + (gold?' gold':'') + (bad?' bad':'');
-  el.style.setProperty('--c', `var(${bad ? '--bad' : pick(colors)})`);
-  el.innerHTML = `<div class="bb" dir="auto">${bad?'⚠️ ':''}${esc(text)}</div><div class="knot"></div><div class="str"></div>`;
+  el.className = 'bal' + (gold?' gold':'') + (bad?' bad':'');
+  el.style.setProperty('--c', `var(${pick(colors)})`);
+  el.innerHTML = bad ? `<div class="fuse"></div><div class="bb" dir="auto">${esc(text)}</div>`
+    : `<div class="bb" dir="auto">${esc(text)}</div><div class="knot"></div><div class="str"></div>`;
   $('#sky').appendChild(el);
   const w = el.offsetWidth, h = el.offsetHeight;
   let x, tries = 0;
   do { x = 8 + Math.random()*Math.max(1, W-w-16); tries++; }
   while (tries<8 && B.list.some(b=>b.y > H-h*1.4 && Math.abs(b.x-x) < w));
-  const b = {el, text, typed:0, x, y:H, h, gold, bad, v:(H+h)/travel()};
+  const b = {el, text, x, y:H, h, gold, bad, v:(H+h)/travel()};
   el.style.transform = `translate(${x}px,${H}px)`;
   B.list.push(b);
 }
@@ -739,10 +760,10 @@ function bLoop(now){
   }
   if (B.running) B.raf = requestAnimationFrame(bLoop);
 }
-function bRemove(b){ B.list = B.list.filter(x=>x!==b); if (B.target===b) B.target = null; }
+function bRemove(b){ B.list = B.list.filter(x=>x!==b); }
 function bEscape(b){
   b.el.remove(); bRemove(b);
-  if (b.gold) return;
+  if (b.gold || b.bad) return; // letting a bomb float away is the right move
   B.lives--; drawHearts(B.lives); sfx.lose();
   if (B.lives<=0) bOver();
 }
@@ -750,7 +771,7 @@ function bPop(b){
   if (b.bad){
     bRemove(b);
     B.lives--; drawHearts(B.lives);
-    const msg = document.createElement('div'); msg.className = 'banner'; msg.textContent = '☠️ Bad balloon!'; msg.style.color = 'var(--bad)';
+    const msg = document.createElement('div'); msg.className = 'banner'; msg.textContent = '💥 Boom!'; msg.style.color = 'var(--bad)';
     msg.style.left = (b.x+10)+'px'; msg.style.top = (b.y+10)+'px';
     $('#sky').appendChild(msg); setTimeout(()=>msg.remove(), 1200);
     b.el.classList.add('popped'); setTimeout(()=>b.el.remove(), 200);
@@ -759,7 +780,7 @@ function bPop(b){
     return;
   }
   bRemove(b);
-  const pts = (B.words ? b.text.length*10 : 10) * B.level * (b.gold?3:1);
+  const pts = 10 * B.level * (b.gold?3:1);
   B.score += pts; B.pops++;
   if (b.gold){ B.lives = Math.min(5, B.lives+1); drawHearts(B.lives); }
   $('#bScore').textContent = B.score;
@@ -774,48 +795,23 @@ function bPop(b){
     $('#sky').appendChild(bn); setTimeout(()=>bn.remove(), 1200);
   }
 }
-function drawTyped(b){
-  const chars = [...b.text];
-  b.el.querySelector('.bb').innerHTML = `<span><span class="done">${esc(chars.slice(0,b.typed).join(''))}</span>${esc(chars.slice(b.typed).join(''))}</span>`;
-}
 function bChar(ch){
   if (ch===' ') return;
-  if (B.target){
-    const b = B.target;
-    if ([...b.text][b.typed]===ch){
-      b.typed++; B.wrongKeys = 0; $('#wrongMsg').textContent = '';
-      sfx.tick();
-      if (b.typed>=[...b.text].length) bPop(b); else drawTyped(b);
-      return true;
-    }
-    B.wrongKeys++; sfx.err();
-    $('#wrongMsg').textContent = `⚠️ ${B.wrongKeys}/3 wrong keys`;
-    if (B.wrongKeys >= 3){ B.wrongKeys = 0; B.lives--; drawHearts(B.lives); sfx.lose();
-      $('#wrongMsg').textContent = '💔 Lost a heart!'; setTimeout(()=>$('#wrongMsg').textContent = '', 1500);
-      if (B.lives<=0) bOver();
-    }
-    return false;
+  // a real balloon always wins over a bomb with the same letter
+  const b = B.list.filter(x=>x.text===ch).sort((a,b)=>(a.bad-b.bad) || (a.y-b.y))[0];
+  if (b){ B.wrongKeys = 0; $('#wrongMsg').textContent = ''; bPop(b); return true; }
+  B.wrongKeys++; sfx.err();
+  $('#wrongMsg').textContent = `⚠️ ${B.wrongKeys}/3 wrong keys`;
+  if (B.wrongKeys >= 3){ B.wrongKeys = 0; B.lives--; drawHearts(B.lives); sfx.lose();
+    $('#wrongMsg').textContent = '💔 Lost a heart!'; setTimeout(()=>$('#wrongMsg').textContent = '', 1500);
+    if (B.lives<=0) bOver();
   }
-  const cands = B.list.filter(b=>[...b.text][0]===ch).sort((a,b)=>a.y-b.y);
-  if (!cands.length){
-    B.wrongKeys++; sfx.err();
-    $('#wrongMsg').textContent = `⚠️ ${B.wrongKeys}/3 wrong keys`;
-    if (B.wrongKeys >= 3){ B.wrongKeys = 0; B.lives--; drawHearts(B.lives); sfx.lose();
-      $('#wrongMsg').textContent = '💔 Lost a heart!'; setTimeout(()=>$('#wrongMsg').textContent = '', 1500);
-      if (B.lives<=0) bOver();
-    }
-    return false;
-  }
-  const b = cands[0];
-  B.wrongKeys = 0; $('#wrongMsg').textContent = '';
-  if ([...b.text].length===1){ bPop(b); return true; }
-  B.target = b; b.typed = 1; b.el.classList.add('target'); drawTyped(b); sfx.tick();
-  return true;
+  return false;
 }
 function bOver(){
   if (!B.running) return;
   B.running = false; cancelAnimationFrame(B.raf); onChar = null;
-  const p = prog(), k = 'balloon_'+Array.from(B.selected).sort().join('_'), isBest = B.score > (p.best[k]||0);
+  const p = prog(), k = bBestKey(), isBest = B.score > (p.best[k]||0);
   if (isBest) p.best[k] = B.score; save();
   sfx.over();
   const ov = document.createElement('div'); ov.className = 'overlay'; ov.dir = dir();
@@ -831,19 +827,17 @@ function bOver(){
 }
 
 /* ---------- word rush game ---------- */
-const WR = {running:false, words:[], wi:0, score:0, level:1, raf:null};
+const WR = {running:false, words:[], wi:0, score:0, level:1};
 function showWordRush(){
   cleanup();
   const best = prog().best['wordrush'] || 0;
   stage.innerHTML = `<div class="hud"><span class="stat"><span>${t('score')}</span><b id="wrScore">0</b></span><span class="stat"><span>${t('level')}</span><b id="wrLevel">1</b></span></div>
     <div class="sky" id="wrSky" dir="${dir()}" style="position:relative;height:400px;background:var(--sky);border-radius:16px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:48px;font-weight:600;color:var(--ink-soft)">
       <div class="overlay" id="wrOv" dir="${dir()}"><div class="card" style="padding:12px;max-width:400px"><h2 style="margin:4px 0 6px">Word Rush</h2><p style="font-size:12px;margin:0 0 6px">Type the words as quickly as you can!</p>
-        <div style="display:flex;gap:6px;margin:6px 0;align-items:center;font-size:11px"><label>Speed:</label><input type="range" id="wrSpeed" min="0.5" max="2" step="0.25" value="1" style="flex:1;cursor:pointer;height:4px"><span id="wrSpeedVal" style="font-size:10px">1x</span></div>
         ${best?`<span class="badge" style="font-size:12px;padding:2px 8px">Best: ${best}</span>`:''}
         <button class="btn primary" data-act="wr" data-enter style="padding:8px 16px;font-size:14px;margin-top:6px">Start</button><span class="enter-hint" style="font-size:10px">${t('enterHint')}</span></div></div>
     </div>`;
   setHint('Type each word quickly!');
-  stage.querySelector('#wrSpeed')?.addEventListener('input', e=>{$('#wrSpeedVal').textContent=(parseFloat(e.target.value).toFixed(2))+'x';});
 }
 function wrStart(){
   cleanup();
@@ -877,6 +871,82 @@ function wrEnd(){
   $('#wrSky').appendChild(ov);
   onEscape = showWordRush;
   if(isBest&&WR.score>0) confetti();
+}
+
+/* ---------- my text: paste anything, type it against a stopwatch ---------- */
+const CT = {text:'', chars:[], spans:[], pos:0, need:0, errors:0, hasError:false, t0:0, timer:null};
+const ctNorm = c => ({'’':"'",'‘':"'",'`':"'"}[c] || c.toLowerCase());
+const ctTypable = (lang, c) => c===' ' || Object.values(LAYOUT[lang]).includes(ctNorm(c));
+const ctSecs = () => CT.t0 ? (performance.now()-CT.t0)/1000 : 0;
+const ctHash = s => { let h = 0; for (const c of s) h = (h*31 + c.codePointAt(0)) | 0; return (h>>>0).toString(36); };
+function showCustom(){
+  cleanup(); mode = 'custom'; renderModes();
+  stage.innerHTML = `<div class="stage-head"><h2>${t('custom')}</h2><p>${t('customHow')}</p></div>
+    <textarea class="paste" id="ctText" dir="auto" placeholder="${esc(t('pasteHere'))}">${esc(S.customText||'')}</textarea>
+    <p class="ct-msg" id="ctMsg"></p>
+    <div class="btns"><button class="btn primary" data-act="ctstart" data-enter>${t('start')}</button></div>`;
+  const ta = $('#ctText');
+  ta.addEventListener('input', ()=>{ S.customText = ta.value; $('#ctMsg').textContent = ''; save(); });
+  ta.focus();
+}
+function ctStart(){
+  const ta = $('#ctText');
+  const text = ta ? ta.value.replace(/\s+/g,' ').trim() : CT.text;
+  const count = lang => [...text].filter(c=>c!==' ' && ctTypable(lang,c)).length;
+  if (!count('en') && !count('he')){ $('#ctMsg').textContent = t('pasteEmpty'); return; }
+  // pick the keyboard that matches the pasted text
+  const other = S.lang==='en' ? 'he' : 'en';
+  if (count(other) > count(S.lang)){ S.lang = other; save(); renderChrome(); }
+  cleanup();
+  Object.assign(CT, {text, chars:[...text], pos:0, need:[...text].filter(c=>ctTypable(S.lang,c)).length, errors:0, hasError:false, t0:0});
+  stage.innerHTML = `<div class="play-bar"><button class="ghost" data-act="custom">${t('newText')}</button><span class="ptitle clock">⏱ <span id="ctTime">0.0</span></span><div class="meter"><div class="fill" id="pfill"></div></div></div>
+    <div class="typetext ct" dir="auto">${CT.chars.map(c=>`<span class="ch${c===' '?' sp':''}">${esc(c)}</span>`).join('')}</div>
+    <div class="mini"><span>${t('accuracy')}: <b id="accv">100%</b></span></div>`;
+  CT.spans = [...stage.querySelectorAll('.ch')];
+  onChar = ctChar; onEscape = showCustom;
+  ctMark();
+}
+function ctMark(){
+  while (CT.pos<CT.chars.length && !ctTypable(S.lang, CT.chars[CT.pos])){ CT.spans[CT.pos].classList.add('ok','skip'); CT.pos++; }
+  $('#pfill').style.width = (100*CT.pos/CT.chars.length)+'%';
+  if (CT.pos>=CT.chars.length){ ctFinish(); return; }
+  const el = CT.spans[CT.pos];
+  el.classList.add('cur'); el.scrollIntoView({block:'nearest'});
+  setNext(charToCode(ctNorm(CT.chars[CT.pos])));
+}
+function ctChar(ch){
+  if (!CT.t0){ CT.t0 = performance.now(); CT.timer = setInterval(()=>{ $('#ctTime').textContent = ctSecs().toFixed(1); }, 100); }
+  if (CT.hasError) return false;
+  const el = CT.spans[CT.pos];
+  if (ch===ctNorm(CT.chars[CT.pos])){
+    el.classList.remove('cur','shake','bad'); el.classList.add('ok');
+    el.textContent = CT.chars[CT.pos];
+    CT.pos++; sfx.tick(); ctMark(); return true;
+  }
+  CT.errors++; CT.hasError = true;
+  el.textContent = ch; el.classList.add('bad'); el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
+  const done = CT.spans.slice(0,CT.pos).filter(s=>!s.classList.contains('skip')).length;
+  $('#accv').textContent = Math.round(100*done/(done+CT.errors||1))+'%';
+  sfx.err(); return false;
+}
+function ctBackspace(){
+  if (!CT.hasError) return;
+  const el = CT.spans[CT.pos];
+  el.textContent = CT.chars[CT.pos]; el.classList.remove('bad','shake');
+  CT.hasError = false; sfx.tick();
+}
+function ctFinish(){
+  const secs = Math.max(ctSecs(), 1), n = CT.need;
+  cleanup(); onEscape = showCustom;
+  const acc = Math.round(100*n/(n+CT.errors||1)), wpm = Math.round((n/5)/(secs/60));
+  const p = prog(), k = 'custom_'+ctHash(CT.text), prev = p.best[k], isBest = !prev || secs < prev;
+  if (isBest){ p.best[k] = Math.round(secs*10)/10; save(); }
+  stage.innerHTML = `<div class="result"><h2>${t('stars'+(acc>=95?3:acc>=85?2:1))}</h2>
+    <div class="nums"><div><b class="clock">${secs.toFixed(1)}</b><span>${t('seconds')}</span></div><div><b>${acc}%</b><span>${t('accuracy')}</span></div><div><b>${wpm}</b><span>${t('wpm')}</span></div></div>
+    ${prev ? (isBest ? `<span class="badge">${t('newBest')}</span>` : `<span class="badge">${t('best')}: ${prev.toFixed(1)}</span>`) : ''}
+    <div class="btns"><button class="btn" data-act="custom">${t('newText').replace(/^[←→]\s*/,'')}</button><button class="btn primary" data-act="ctstart" data-enter>${t('again')}</button></div>
+    <span class="enter-hint">${t('enterHint')}</span></div>`;
+  sfx.win(); if (isBest && prev) confetti();
 }
 
 /* ---------- boot ---------- */

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Learning Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap">
+<style>
+/* Layout: a header with the language switch, then one card per app */
+:root {
+  --bg: #EEF3FA; --card: #FFFFFF; --ink: #1E2650; --soft: #5A6390; --line: #D3DCEF;
+  --pink: #FF7AA2; --sun: #FFC23D; --mint: #3FCF9C; --violet: #6A4AEE; --teal: #0F978C;
+  --display: "Fredoka", "Rubik", system-ui, sans-serif;
+  --body: "Rubik", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121833; --card: #1C2446; --ink: #EEF1FF; --soft: #A3ACD6; --line: #2F3966; color-scheme: dark;
+} }
+:root[data-theme="dark"] { --bg: #121833; --card: #1C2446; --ink: #EEF1FF; --soft: #A3ACD6; --line: #2F3966; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.5 var(--body); }
+.wrap { max-width: 880px; margin: 0 auto; padding: 28px 16px 48px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
+h1 { font: 700 clamp(30px, 6vw, 44px)/1.1 var(--display); margin: 0; }
+.tag { margin: 6px 0 0; color: var(--soft); }
+.lang { border: 2px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 6px 16px; font: 600 16px var(--display); cursor: pointer; }
+.lang:focus-visible, .app:focus-visible { outline: 3px solid var(--violet); outline-offset: 3px; }
+.apps { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.app { display: grid; gap: 10px; align-content: start; text-decoration: none; color: inherit; background: var(--card); border: 2px solid var(--line); border-radius: 22px; padding: 22px; box-shadow: 0 4px 0 var(--line); transition: transform .15s, border-color .15s, box-shadow .15s; }
+.app:hover { transform: translateY(-3px); border-color: var(--ink); box-shadow: 0 6px 0 var(--ink); }
+.icon { width: 64px; height: 64px; border-radius: 16px; display: grid; place-items: center; }
+.icon svg { width: 40px; height: 40px; }
+.app h2 { font: 600 26px/1.15 var(--display); margin: 4px 0 0; }
+.app p { margin: 0; color: var(--soft); }
+.go { margin-top: 6px; font: 600 17px var(--display); color: var(--violet); }
+[dir="rtl"] .go .arr { display: inline-block; transform: scaleX(-1); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .go { color: #9C86FF; } }
+:root[data-theme="dark"] .go { color: #9C86FF; }
+@media (prefers-reduced-motion: reduce) { .app { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1 data-i18n="title"></h1>
+      <p class="tag" data-i18n="tagline"></p>
+    </div>
+    <button class="lang" id="lang"></button>
+  </header>
+  <main class="apps">
+    <a class="app" href="key-pop.html">
+      <span class="icon" style="background:var(--pink)"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="4" y="9" width="32" height="22" rx="6" fill="#fff" stroke="#1E2650" stroke-width="2.6"/><path d="M10 16h3M17 16h3M24 16h3M31 16h0M12 24h16" stroke="#1E2650" stroke-width="3" stroke-linecap="round"/></svg></span>
+      <h2 data-i18n="keyPop"></h2>
+      <p data-i18n="keyPopDesc"></p>
+      <span class="go"><span data-i18n="play"></span> <span class="arr">→</span></span>
+    </a>
+    <a class="app" href="times-table-quest.html">
+      <span class="icon" style="background:var(--sun)"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="6" y="6" width="28" height="28" rx="7" fill="#1E2650"/><path d="M14 14l12 12M26 14L14 26" stroke="#FFC23D" stroke-width="4" stroke-linecap="round"/></svg></span>
+      <h2 data-i18n="ttq"></h2>
+      <p data-i18n="ttqDesc"></p>
+      <span class="go"><span data-i18n="play"></span> <span class="arr">→</span></span>
+    </a>
+    <a class="app" href="spelling-detective.html">
+      <span class="icon" style="background:var(--mint)"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="17" cy="17" r="10" fill="#fff" stroke="#1E2650" stroke-width="3"/><path d="M25 25l9 9" stroke="#1E2650" stroke-width="4.5" stroke-linecap="round"/></svg></span>
+      <h2 data-i18n="sd"></h2>
+      <p data-i18n="sdDesc"></p>
+      <span class="go"><span data-i18n="play"></span> <span class="arr">→</span></span>
+    </a>
+  </main>
+</div>
+<script>
+const T = {
+  en: { title: 'Learning Games', tagline: 'Pick a game and start practicing.', langBtn: 'עברית', play: 'Play',
+    keyPop: 'Key Pop', keyPopDesc: 'Learn to touch type in English and Hebrew: step-by-step lessons, balloon popping, and typing races.',
+    ttq: 'Times Table Quest', ttqDesc: 'Master the times tables with study cards, practice rounds, memory match, and boss battles.',
+    sd: 'Spelling Detective', sdDesc: 'Hebrew spelling: tell apart letters that sound alike (א/ע, ח/כ, ט/ת…), find mistakes in sentences, and use word roots. In Hebrew.' },
+  he: { title: 'משחקי למידה', tagline: 'לבחור משחק ולהתחיל לתרגל.', langBtn: 'English', play: 'לשחק',
+    keyPop: 'Key Pop', keyPopDesc: 'ללמוד הקלדה עיוורת בעברית ובאנגלית: שיעורים צעד אחר צעד, פיצוץ בלונים ומרוצי הקלדה.',
+    ttq: 'מסע לוח הכפל', ttqDesc: 'לשלוט בלוח הכפל עם כרטיסי לימוד, סבבי תרגול, משחק זיכרון וקרבות מפלצות.',
+    sd: 'בלש האיות', sdDesc: 'לפצח את האותיות שנשמעות אותו דבר (א/ע, ח/כ, ט/ת…), למצוא טעויות במשפטים ולהיעזר בשורשים.' }
+};
+let lang = 'en';
+try { lang = localStorage.getItem('apps-lang') || (navigator.language.startsWith('he') ? 'he' : 'en'); } catch (e) {}
+function render() {
+  const d = T[lang];
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr';
+  document.title = d.title;
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = d[el.dataset.i18n]; });
+  const b = document.getElementById('lang'); b.textContent = d.langBtn; b.lang = lang === 'he' ? 'en' : 'he';
+}
+document.getElementById('lang').addEventListener('click', () => {
+  lang = lang === 'he' ? 'en' : 'he';
+  try { localStorage.setItem('apps-lang', lang); } catch (e) {}
+  render();
+});
+render();
+</script>
+</body>
+</html>
